@@ -1412,10 +1412,11 @@
     function getNivelPlasma() {
         /*Check if tech data is on localStorage*/
         if( typeof localStorage.UV_playerResearch==="undefined" ) {
+            var theHref = location.href;
             /*Redirect to research page*/
             if( theHref.indexOf("research")==-1 ) {
                 var researchHref = theHref.split("/game")[0]+"/game/index.php?page=ingame&component=research";
-                localStorage._previousURL_necessaryCargo = theHref;
+                localStorage._previousURL_resourceSettings = theHref;
                 window.location.href = researchHref;
             } else {
                 localStorage.UV_playerResearch = "";
@@ -1448,7 +1449,7 @@
                 researches = researches.slice(0,-1)+"}";
 
                 localStorage.UV_playerResearch = researches;
-                window.location.href = localStorage._previousURL_necessaryCargo;
+                window.location.href = localStorage._previousURL_resourceSettings;
             }
         }
 
@@ -1561,8 +1562,7 @@
             ret += this.metal_clase_alianza + separador;
             ret += this.cristal_clase_alianza + separador;
             ret += this.deuterio_clase_alianza + separador;
-
-            return [ret, JSON.stringify(oret)];
+            return ret;
         }
 
         this.load = function(saved) {
@@ -1836,6 +1836,14 @@
 
             var lista = getElementsByClass("list")[0];
 
+            var bonus_taladrador = 0.03, /* 3% cada recurso */
+                taladrador_qty = 0,
+                player_class = $("#characterclass div.characterclass"),
+                alliance_class = $(document).find(".allianceclass"),
+                geologo = $("#officers > a.geologist.on").length,
+                equipo_comando = $("#officers > a.commander.on").length,
+                plasma = getNivelPlasma();
+
             /*
             //Orden de filas actual Versión 8.0
             Fila 1 Titulos
@@ -1889,48 +1897,93 @@
             planeta.metal_nivel_mina = parseInt(parcial)
 
             // taladrador
-            parcial = getContenido(lista, 9,2).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>")); // Se regresa al original para la version 9 de OGame
-            // parcial = parcial.substring(parcial.indexOf('le="')+4, parcial.indexOf('">')); // Update for + 1M resources
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.metal_taladrador = parseInt(parcial);
+            taladrador_qty = getContenido(lista, 9,0).innerHTML;
+            taladrador_qty = (taladrador_qty.split(": ")[1]).split("/")[0];
+            /*taladrador_qty = taladrador_qty.substring(taladrador_qty.indexOf('/'), taladrador_qty.indexOf(': ')+2);*/
+            taladrador_qty = taladrador_qty.replace(/\./g, "").replace(/\,/g, "").trim();
+            planeta.metal_taladrador = planeta.metal_produccion_mina * ( taladrador_qty * bonus_taladrador / 100 );
+            /**
+             *
+             * // Se comenta para mejorar la precisión
+             *
+             * parcial = getContenido(lista, 9,2).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>")); // Se regresa al original para la version 9 de OGame
+             * // parcial = parcial.substring(parcial.indexOf('le="')+4, parcial.indexOf('">')); // Update for + 1M resources
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.metal_taladrador = parseInt(parcial);
+             * */
 
 
             // plasma
-            parcial = getContenido(lista, 10,2).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.metal_plasma = parseInt( parcial );
+            planeta.metal_plasma = planeta.metal_produccion_mina*(1*plasma/100);
+            /**
+             * //Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 10,2).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.metal_plasma = parseInt( parcial );
+             */
 
             // amplificador
             parcial = getContenido(lista, 11,2).innerHTML;
             parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
             parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
             planeta.metal_produccion_amplificador = parseInt( parcial );
+
             // geologo
-            parcial = getContenido(lista, 12,2).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.metal_geologo = parseInt(parcial);
+            if( geologoActivo() )
+                planeta.metal_geologo = planeta.metal_produccion_mina * 0.1;
+            else
+                planeta.metal_geologo = 0;
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 12,2).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.metal_geologo = parseInt(parcial);*/
 
             // oficiales
-            parcial = getContenido(lista, 14,2).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.metal_oficiales = parseInt(parcial);
+            if( equipoComandoActivo() )
+                planeta.metal_oficiales = planeta.metal_produccion_mina * 0.02;
+            else
+                planeta.metal_oficiales = 0;
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 14,2).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.metal_oficiales = parseInt(parcial);*/
 
 
             // class
-            parcial = getContenido(lista, 15,2).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.metal_classe = parseInt(parcial);
+            if( player_class.hasClass("miner") )
+                planeta.metal_classe = planeta.metal_produccion_mina * 0.25;
+            else
+                planeta.metal_classe = 0;
+
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 15,2).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.metal_classe = parseInt(parcial);*/
 
             // Alianz class
-            parcial = getContenido(lista, 16,2).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.metal_clase_alianza = parseInt(parcial);
+            if( alliance_class.hasClass("trader") )
+                planeta.metal_clase_alianza = planeta.metal_produccion_mina * 0.05;
+            else
+                planeta.metal_clase_alianza = 0;
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 16,2).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.metal_clase_alianza = parseInt(parcial);*/
 
             // ---------- cristal ---------------------
 
@@ -1958,40 +2011,75 @@
             planeta.cristal_produccion_amplificador = parseInt(parcial);
 
             // plasma
-            parcial = getContenido(lista, 10,3).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.cristal_plasma = parseInt(parcial);
+            planeta.cristal_plasma = planeta.cristal_produccion_mina*(0.66*plasma/100);
+            /**
+             * //Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 10,3).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.cristal_plasma = parseInt(parcial);
+             */
 
             // geologo
-            parcial = getContenido(lista, 12,3).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.cristal_geologo = parseInt(parcial);
+            if( geologoActivo() )
+                planeta.cristal_geologo = planeta.cristal_produccion_mina * 0.1;
+            else
+                planeta.cristal_geologo = 0;
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 12,3).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.cristal_geologo = parseInt(parcial);*/
 
             // oficiales
-            parcial = getContenido(lista, 14,3).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.cristal_oficiales = parseInt(parcial);
+            if( equipoComandoActivo() )
+                planeta.cristal_oficiales = planeta.cristal_produccion_mina * 0.02;
+            else
+                planeta.cristal_oficiales = 0;
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 14,3).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.cristal_oficiales = parseInt(parcial);*/
 
             // taladrador
-            parcial = getContenido(lista, 9,3).innerHTML;
+            planeta.cristal_taladrador = planeta.cristal_produccion_mina * ( taladrador_qty * bonus_taladrador / 100 );
+            /*parcial = getContenido(lista, 9,3).innerHTML;
             parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
             parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.cristal_taladrador = parseInt(parcial);
+            planeta.cristal_taladrador = parseInt(parcial);*/
 
             // class
-            parcial = getContenido(lista, 15,3).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.cristal_classe = parseInt(parcial);
+            if( player_class.hasClass("miner") )
+                planeta.cristal_classe = planeta.cristal_produccion_mina * 0.25;
+            else
+                planeta.cristal_classe = 0;
+
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 15,3).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.cristal_classe = parseInt(parcial);*/
 
             // Alianz class
-            parcial = getContenido(lista, 16,3).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.cristal_clase_alianza = parseInt(parcial);
+            if( alliance_class.hasClass("trader") )
+                planeta.cristal_clase_alianza = planeta.cristal_produccion_mina * 0.05;
+            else
+                planeta.cristal_clase_alianza = 0;
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 16,3).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.cristal_clase_alianza = parseInt(parcial);*/
 
             // ------- deuterio ------------------------------
 
@@ -2021,40 +2109,75 @@
             planeta.deuterio_produccion_amplificador = parseInt(parcial);
 
             // plasma
-            parcial = getContenido(lista, 10,4).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.deuterio_plasma = parseInt(parcial);
+            planeta.deuterio_plasma = planeta.deuterio_produccion_mina*(0.33*plasma/100);
+            /**
+             * //Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 10,4).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.deuterio_plasma = parseInt(parcial);
+             */
 
             // geologo
-            parcial = getContenido(lista, 12,4).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.deuterio_geologo = parseInt(parcial);
+            if( geologoActivo() )
+                planeta.deuterio_geologo = planeta.deuterio_produccion_mina * 0.1;
+            else
+                planeta.deuterio_geologo = 0;
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 12,4).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.deuterio_geologo = parseInt(parcial);*/
 
             // oficiales
-            parcial = getContenido(lista, 14,4).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.deuterio_oficiales = parseInt(parcial);
+            if( equipoComandoActivo() )
+                planeta.deuterio_oficiales = planeta.deuterio_produccion_mina * 0.02;
+            else
+                planeta.deuterio_oficiales = 0;
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 14,4).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.deuterio_oficiales = parseInt(parcial);*/
 
             // taladrador
-            parcial = getContenido(lista, 9,4).innerHTML;
+            planeta.deuterio_taladrador = planeta.deuterio_produccion_mina * ( taladrador_qty * bonus_taladrador / 100 );
+            /*parcial = getContenido(lista, 9,4).innerHTML;
             parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
             parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.deuterio_taladrador = parseInt(parcial);
+            planeta.deuterio_taladrador = parseInt(parcial);*/
 
             // class
-            parcial = getContenido(lista, 15,4).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.deuterio_classe = parseInt(parcial);
+            if( player_class.hasClass("miner") )
+                planeta.deuterio_classe = planeta.deuterio_produccion_mina * 0.25;
+            else
+                planeta.deuterio_classe = 0;
+
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 15,4).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.deuterio_classe = parseInt(parcial);*/
 
             // Alianz class
-            parcial = getContenido(lista, 16,4).innerHTML;
-            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
-            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.deuterio_clase_alianza = parseInt(parcial);
+            if( alliance_class.hasClass("trader") )
+                planeta.deuterio_clase_alianza = planeta.deuterio_produccion_mina * 0.05;
+            else
+                planeta.deuterio_clase_alianza = 0;
+            /**
+             * Se comenta para mejorar precisión
+             *
+             * parcial = getContenido(lista, 16,4).innerHTML;
+             * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+             * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+             * planeta.deuterio_clase_alianza = parseInt(parcial);*/
 
             // ----- almacenes ------------------------------------------------------------
 
@@ -2118,7 +2241,6 @@
                 }
             }*///YA NO ESTA INTEGRADO POR ESO NO REQUIERE RESTARLO.--------------------------------VERSION OGAME 6.5.1 +
 
-            debugger;
             options.set(getPosActual() + "_objplanet", planeta.save());
 
         }
@@ -2222,42 +2344,42 @@
                     minaC += parseInt(planeta.cristal_produccion_mina || 0);
                     minaD += parseInt(planeta.deuterio_produccion_mina || 0);
 
-                    plasmaM += parseInt(planeta.metal_plasma || 0);
-                    plasmaC += parseInt(planeta.cristal_plasma || 0) ;
-                    plasmaD += parseInt(planeta.deuterio_plasma || 0);
+                    plasmaM += parseFloat(planeta.metal_plasma || 0);
+                    plasmaC += parseFloat(planeta.cristal_plasma || 0) ;
+                    plasmaD += parseFloat(planeta.deuterio_plasma || 0);
 
-                    amplificadoresM += parseInt(planeta.metal_produccion_amplificador || 0);
-                    amplificadoresC += parseInt(planeta.cristal_produccion_amplificador || 0);
-                    amplificadoresD += parseInt(planeta.deuterio_produccion_amplificador || 0);
+                    amplificadoresM += parseFloat(planeta.metal_produccion_amplificador || 0);
+                    amplificadoresC += parseFloat(planeta.cristal_produccion_amplificador || 0);
+                    amplificadoresD += parseFloat(planeta.deuterio_produccion_amplificador || 0);
 
                     gastoFusion += parseInt(planeta.deuterio_gasto_fusion || 0);
 
-                    taladradorM += parseInt(planeta.metal_taladrador  || 0);
-                    classeM += parseInt(planeta.metal_classe  || 0);
-                    taladradorC += parseInt(planeta.cristal_taladrador  || 0);
-                    classeC += parseInt(planeta.cristal_classe  || 0);
-                    taladradorD += parseInt(planeta.deuterio_taladrador  || 0);
-                    classeD += parseInt(planeta.deuterio_classe  || 0);
+                    taladradorM += parseFloat(planeta.metal_taladrador  || 0);
+                    classeM += parseFloat(planeta.metal_classe  || 0);
+                    taladradorC += parseFloat(planeta.cristal_taladrador  || 0);
+                    classeC += parseFloat(planeta.cristal_classe  || 0);
+                    taladradorD += parseFloat(planeta.deuterio_taladrador  || 0);
+                    classeD += parseFloat(planeta.deuterio_classe  || 0);
 
-                    clasAliM += parseInt(planeta.metal_clase_alianza  || 0);
-                    clasAliC += parseInt(planeta.cristal_clase_alianza  || 0);
-                    clasAliD += parseInt(planeta.deuterio_clase_alianza  || 0);
+                    clasAliM += parseFloat(planeta.metal_clase_alianza  || 0);
+                    clasAliC += parseFloat(planeta.cristal_clase_alianza  || 0);
+                    clasAliD += parseFloat(planeta.deuterio_clase_alianza  || 0);
 
 
                     if(equipoComandoActivo()) {
-                        geoM += parseInt(planeta.metal_geologo || 0);
-                        geoC += parseInt(planeta.cristal_geologo || 0);
-                        geoD += parseInt(planeta.deuterio_geologo || 0);
-                        ofiM += parseInt(planeta.metal_oficiales || 0);
-                        ofiC += parseInt(planeta.cristal_oficiales || 0);
-                        ofiD += parseInt(planeta.deuterio_oficiales || 0);
+                        geoM += parseFloat(planeta.metal_geologo || 0);
+                        geoC += parseFloat(planeta.cristal_geologo || 0);
+                        geoD += parseFloat(planeta.deuterio_geologo || 0);
+                        ofiM += parseFloat(planeta.metal_oficiales || 0);
+                        ofiC += parseFloat(planeta.cristal_oficiales || 0);
+                        ofiD += parseFloat(planeta.deuterio_oficiales || 0);
                         geoSTR = " (+12%)";
                     } else {
 
                         if(geologoActivo()) {
-                            geoM += parseInt(planeta.metal_geologo || 0);
-                            geoC += parseInt(planeta.cristal_geologo || 0);
-                            geoD += parseInt(planeta.deuterio_geologo || 0);
+                            geoM += parseFloat(planeta.metal_geologo || 0);
+                            geoC += parseFloat(planeta.cristal_geologo || 0);
+                            geoD += parseFloat(planeta.deuterio_geologo || 0);
                             geoSTR = " (+10%)";
                         }
                     }
@@ -2266,8 +2388,6 @@
                     totalM = baseM + minaM + geoM + ofiM + plasmaM + amplificadoresM + taladradorM + classeM + clasAliM;
                     totalC = baseC + minaC + geoC + ofiC + plasmaC + amplificadoresC + taladradorC + classeC + clasAliC;
                     totalD = baseD + minaD + geoD + ofiD + plasmaD + (amplificadoresD - gastoFusion) + taladradorD + classeD + clasAliD;
-
-
                 }
             }
 
