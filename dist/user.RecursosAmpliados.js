@@ -10,6 +10,7 @@
 // @downloadURL https://openuserjs.org/src/scripts/jgarrone/OGame_Recursos_Ampliados.user.js
 // @match *://*/game/index.php?page=ingame&component=resourcesettings*
 // @match *://*/game/index.php?page=ingame&component=resourceSettings*
+// @match *://*/game/index.php?page=ingame&component=research*
 // @grant none
 // @license MIT
 // Se le hicieron solo unas modificaciones para que trabaje en el version de Ogame 6.5.1
