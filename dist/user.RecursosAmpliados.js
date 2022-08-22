@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 2.9
+// @version 2.91
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados
@@ -1842,7 +1842,19 @@
                 alliance_class = $(document).find(".allianceclass"),
                 geologo = $("#officers > a.geologist.on").length,
                 equipo_comando = $("#officers > a.commander.on").length,
-                plasma = getNivelPlasma();
+                plasma = getNivelPlasma()
+                life_forms = [
+                    "Humanos",
+                    "Human",
+                    "Rock´tal",
+                    "Rock`tal",
+                    "Mecha",
+                    "Mecas",
+                    "Kaelesh",
+                ];
+
+            if( $("#lifeform").length>0 )
+                var life_form = $("#lifeform > a[title]").attr("title").split("|")[0];
 
             /*
             //Orden de filas actual Versión 8.0
@@ -1897,7 +1909,14 @@
             planeta.metal_nivel_mina = parseInt(parcial)
 
             // taladrador
-            taladrador_qty = getContenido(lista, 9,0).innerHTML;
+            if( $("#lifeform").length>0 ) {
+                if( life_forms.indexOf(life_form)>-1 )
+                    taladrador_qty = getContenido(lista, 21,0).innerHTML;
+                else
+                    taladrador_qty = getContenido(lista, 9,0).innerHTML;
+            } else
+                taladrador_qty = getContenido(lista, 9,0).innerHTML;
+
             taladrador_qty = (taladrador_qty.split(": ")[1]).split("/")[0];
             /*taladrador_qty = taladrador_qty.substring(taladrador_qty.indexOf('/'), taladrador_qty.indexOf(': ')+2);*/
             taladrador_qty = taladrador_qty.replace(/\./g, "").replace(/\,/g, "").trim();
@@ -2255,7 +2274,7 @@
 
 
 
-    if( location.href.indexOf('/game/index.php?page=ingame&component=resourcesettings')!=-1 || location.href.indexOf('/game/index.php?page=ingame&component=resourceSettings')!=-1 ) {
+    if( location.href.indexOf('/game/index.php?page=ingame&component=resourcesettings')!=-1 || location.href.indexOf('/game/index.php?page=ingame&component=resourceSettings')!=-1 || location.href.indexOf('/game/index.php/page=ingame&component=research')!=-1 ) {
 
         getDatosSummary();
 
