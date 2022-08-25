@@ -1910,11 +1910,11 @@
             planeta.metal_nivel_mina = parseInt(parcial)
 
             // taladrador
-            if( $("#lifeform").length>0 ) {
-                if( life_forms.indexOf(life_form)>-1 )
-                    taladrador_qty = getContenido(lista, 21,0).innerHTML;
+            if( life_forms.indexOf(life_form)>-1 ) {
+                if( life_form=="Rock´tal" || life_form=="Rock`tal" )
+                    taladrador_qty = getContenido(lista, 20,0).innerHTML;
                 else
-                    taladrador_qty = getContenido(lista, 9,0).innerHTML;
+                    taladrador_qty = getContenido(lista, 21,0).innerHTML;
             } else
                 taladrador_qty = getContenido(lista, 9,0).innerHTML;
 
