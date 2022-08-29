@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 2.91
+// @version 2.92
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados
@@ -37,6 +37,50 @@
 
     var patron_basico;
     var patron_completo;
+
+    /*Check if tech data is on localStorage*/
+    if( typeof localStorage.UV_playerResearch==="undefined" ) {
+        var theHref = location.href;
+        /*Redirect to research page*/
+        if( theHref.indexOf("research")==-1 ) {
+            var researchHref = theHref.split("/game")[0]+"/game/index.php?page=ingame&component=research";
+            localStorage._previousURL_resourceSettings = theHref;
+            window.location.href = researchHref;
+            return;
+        } else {
+            localStorage.UV_playerResearch = "";
+            var researches = "{";
+
+            $("#technologies_basic ul > li").each(function(i, el){
+                var res_id = $(el).attr("data-technology");
+                var res_level = $(el).find(".level").attr("data-value");
+                researches += `"${res_id}":${parseInt(res_level)},`;
+            });
+
+            $("#technologies_drive ul > li").each(function(i, el){
+                var res_id = $(el).attr("data-technology");
+                var res_level = $(el).find(".level").attr("data-value");
+                researches += `"${res_id}":${parseInt(res_level)},`;
+            });
+
+            $("#technologies_advanced ul > li").each(function(i, el){
+                var res_id = $(el).attr("data-technology");
+                var res_level = $(el).find(".level").attr("data-value");
+                researches += `"${res_id}":${parseInt(res_level)},`;
+            });
+
+            $("#technologies_combat ul > li").each(function(i, el){
+                var res_id = $(el).attr("data-technology");
+                var res_level = $(el).find(".level").attr("data-value");
+                researches += `"${res_id}":${parseInt(res_level)},`;
+            });
+
+            researches = researches.slice(0,-1)+"}";
+
+            localStorage.UV_playerResearch = researches;
+            window.location.href = localStorage._previousURL_resourceSettings;
+        }
+    }
 
 
     function addEvent (el, evt, fxn)
@@ -1411,49 +1455,6 @@
 
 
     function getNivelPlasma() {
-        /*Check if tech data is on localStorage*/
-        if( typeof localStorage.UV_playerResearch==="undefined" ) {
-            var theHref = location.href;
-            /*Redirect to research page*/
-            if( theHref.indexOf("research")==-1 ) {
-                var researchHref = theHref.split("/game")[0]+"/game/index.php?page=ingame&component=research";
-                localStorage._previousURL_resourceSettings = theHref;
-                window.location.href = researchHref;
-            } else {
-                localStorage.UV_playerResearch = "";
-                var researches = "{";
-
-                $("#technologies_basic ul > li").each(function(i, el){
-                    var res_id = $(el).attr("data-technology");
-                    var res_level = $(el).find(".level").attr("data-value");
-                    researches += `"${res_id}":${parseInt(res_level)},`;
-                });
-
-                $("#technologies_drive ul > li").each(function(i, el){
-                    var res_id = $(el).attr("data-technology");
-                    var res_level = $(el).find(".level").attr("data-value");
-                    researches += `"${res_id}":${parseInt(res_level)},`;
-                });
-
-                $("#technologies_advanced ul > li").each(function(i, el){
-                    var res_id = $(el).attr("data-technology");
-                    var res_level = $(el).find(".level").attr("data-value");
-                    researches += `"${res_id}":${parseInt(res_level)},`;
-                });
-
-                $("#technologies_combat ul > li").each(function(i, el){
-                    var res_id = $(el).attr("data-technology");
-                    var res_level = $(el).find(".level").attr("data-value");
-                    researches += `"${res_id}":${parseInt(res_level)},`;
-                });
-
-                researches = researches.slice(0,-1)+"}";
-
-                localStorage.UV_playerResearch = researches;
-                window.location.href = localStorage._previousURL_resourceSettings;
-            }
-        }
-
         var researches = JSON.parse( localStorage.UV_playerResearch );
         var nivel_plasma = researches[122];
 
@@ -2273,31 +2274,27 @@
     // ============================================================
     // ============================================================
 
+    var LANG = LANG_EN;
 
+    if (location.href.indexOf('-es.ogame.gameforge.com') != -1) { LANG = LANG_ES; }
+    if (location.href.indexOf('-ar.ogame.gameforge.com') != -1) { LANG = LANG_ES; }
+    if (location.href.indexOf('-mx.ogame.gameforge.com') != -1) { LANG = LANG_ES; }
+    if (location.href.indexOf('-bg.ogame.gameforge.com') != -1) { LANG = LANG_BG; }
+    if (location.href.indexOf('-pt.ogame.gameforge.com') != -1) { LANG = LANG_PT; }
+    if (location.href.indexOf('-br.ogame.gameforge.com') != -1) { LANG = LANG_PT; }
+    if (location.href.indexOf('-dk.ogame.gameforge.com') != -1) { LANG = LANG_DA; }
+    if (location.href.indexOf('-ru.ogame.gameforge.com') != -1) { LANG = LANG_RU; }
+    if (location.href.indexOf('-tw.ogame.gameforge.com') != -1) { LANG = LANG_TW; }
+    if (location.href.indexOf('-fr.ogame.gameforge.com') != -1) { LANG = LANG_FR; }
+    if (location.href.indexOf('-gr.ogame.gameforge.com') != -1) { LANG = LANG_GR; }
+    if (location.href.indexOf('-it.ogame.gameforge.com') != -1) { LANG = LANG_IT; }
+    if (location.href.indexOf('-pl.ogame.gameforge.com') != -1) { LANG = LANG_PL; }
+    if (location.href.indexOf('-de.ogame.gameforge.com') != -1) { LANG = LANG_DE; }
+    if (location.href.indexOf('-nl.ogame.gameforge.com') != -1) { LANG = LANG_NL; }
 
     if( location.href.indexOf('/game/index.php?page=ingame&component=resourcesettings')!=-1 || location.href.indexOf('/game/index.php?page=ingame&component=resourceSettings')!=-1 || location.href.indexOf('/game/index.php/page=ingame&component=research')!=-1 ) {
 
         getDatosSummary();
-
-
-        var LANG = LANG_EN;
-
-
-        if (location.href.indexOf('-es.ogame.gameforge.com') != -1) { LANG = LANG_ES; }
-        if (location.href.indexOf('-ar.ogame.gameforge.com') != -1) { LANG = LANG_ES; }
-        if (location.href.indexOf('-mx.ogame.gameforge.com') != -1) { LANG = LANG_ES; }
-        if (location.href.indexOf('-bg.ogame.gameforge.com') != -1) { LANG = LANG_BG; }
-        if (location.href.indexOf('-pt.ogame.gameforge.com') != -1) { LANG = LANG_PT; }
-        if (location.href.indexOf('-br.ogame.gameforge.com') != -1) { LANG = LANG_PT; }
-        if (location.href.indexOf('-dk.ogame.gameforge.com') != -1) { LANG = LANG_DA; }
-        if (location.href.indexOf('-ru.ogame.gameforge.com') != -1) { LANG = LANG_RU; }
-        if (location.href.indexOf('-tw.ogame.gameforge.com') != -1) { LANG = LANG_TW; }
-        if (location.href.indexOf('-fr.ogame.gameforge.com') != -1) { LANG = LANG_FR; }
-        if (location.href.indexOf('-gr.ogame.gameforge.com') != -1) { LANG = LANG_GR; }
-        if (location.href.indexOf('-it.ogame.gameforge.com') != -1) { LANG = LANG_IT; }
-        if (location.href.indexOf('-pl.ogame.gameforge.com') != -1) { LANG = LANG_PL; }
-        if (location.href.indexOf('-de.ogame.gameforge.com') != -1) { LANG = LANG_DE; }
-        if (location.href.indexOf('-nl.ogame.gameforge.com') != -1) { LANG = LANG_NL; }
 
         var nivel_plasma = getNivelPlasma();
 
