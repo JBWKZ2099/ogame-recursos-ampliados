@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 2.95
+// @version 2.96
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados
@@ -20,7 +20,7 @@
 
 (function () {
 
-    var SCRIPT_VERSION = "2.95";
+    var SCRIPT_VERSION = "2.96";
 
     var unsafe = (typeof unsafeWindow) != "undefined" ? unsafeWindow : window;
 
@@ -1642,26 +1642,26 @@
             var geo = 0;
             var ofi = 0;
 
-            var base = parseInt(this.metal_base || 0);
-            var mina = parseInt(this.metal_produccion_mina || 0);
+            var base = parseFloat(this.metal_base || 0);
+            var mina = parseFloat(this.metal_produccion_mina || 0);
             //var plasma = Math.round( (this.metal_produccion_mina || 0) * getNivelPlasma() / 100);
-            var amplificador = parseInt(this.metal_produccion_amplificador || 0);
-            var plasma = parseInt(this.metal_plasma || 0);
+            var amplificador = parseFloat(this.metal_produccion_amplificador || 0);
+            var plasma = parseFloat(this.metal_plasma || 0);
 
             if(equipoComandoActivo()) {
                 //geo = Math.round((this.metal_produccion_mina || 0) * 0.12);
-                geo = parseInt(this.metal_geologo || 0);
-                ofi = parseInt(this.metal_oficiales || 0);
+                geo = parseFloat(this.metal_geologo || 0);
+                ofi = parseFloat(this.metal_oficiales || 0);
             } else {
                 if(geologoActivo()) {
                     //geo = Math.round((this.metal_produccion_mina ||0) * 0.10);
-                    geo = parseInt(this.metal_geologo || 0);
+                    geo = parseFloat(this.metal_geologo || 0);
                 }
             }
 
             var life_form_metal = parseFloat( this.life_form_metal_bonus || 0 );
 
-            return base + mina + geo + ofi + plasma + amplificador + parseInt(this.metal_taladrador) + parseInt(this.metal_classe) + parseInt(this.metal_clase_alianza) + life_form_metal;
+            return base + mina + geo + ofi + plasma + amplificador + parseFloat(this.metal_taladrador) + parseFloat(this.metal_classe) + parseFloat(this.metal_clase_alianza) + life_form_metal;
         }
 
         this.getTotalC = function() {
@@ -1669,27 +1669,27 @@
             var geo = 0;
             var ofi = 0;
 
-            var base = parseInt(this.cristal_base || 0);
-            var mina = parseInt(this.cristal_produccion_mina || 0);
+            var base = parseFloat(this.cristal_base || 0);
+            var mina = parseFloat(this.cristal_produccion_mina || 0);
             //var plasma = Math.round((this.cristal_produccion_mina || 0) * (getNivelPlasma() * 0.66) / 100)
-            var amplificador = parseInt(this.cristal_produccion_amplificador || 0);
-            var plasma = parseInt(this.cristal_plasma || 0);
+            var amplificador = parseFloat(this.cristal_produccion_amplificador || 0);
+            var plasma = parseFloat(this.cristal_plasma || 0);
 
             if(equipoComandoActivo()) {
                 //geo = Math.round((this.cristal_produccion_mina ||0) * 0.12);
-                geo = parseInt(this.cristal_geologo || 0);
-                ofi = parseInt(this.cristal_oficiales || 0);
+                geo = parseFloat(this.cristal_geologo || 0);
+                ofi = parseFloat(this.cristal_oficiales || 0);
             } else {
 
                 if(geologoActivo()) {
                     //geo = Math.round((this.cristal_produccion_mina ||0) * 0.10);
-                    geo = parseInt(this.cristal_geologo || 0);
+                    geo = parseFloat(this.cristal_geologo || 0);
                 }
             }
 
             var life_form_cristal = parseFloat( this.life_form_cristal_bonus || 0 );
 
-            return base + mina + geo + ofi + plasma + amplificador + parseInt(this.cristal_taladrador) + parseInt(this.cristal_classe) + parseInt(this.cristal_clase_alianza) + life_form_cristal;
+            return base + mina + geo + ofi + plasma + amplificador + parseFloat(this.cristal_taladrador) + parseFloat(this.cristal_classe) + parseFloat(this.cristal_clase_alianza) + life_form_cristal;
         }
 
         this.getTotalD = function() {
@@ -1697,27 +1697,27 @@
             var geo = 0;
             var ofi = 0;
 
-            var mina = parseInt(this.deuterio_produccion_mina || 0);
+            var mina = parseFloat(this.deuterio_produccion_mina || 0);
             //var plasma = Math.round((this.deuterio_produccion_mina || 0) * (getNivelPlasma() * 0.33) / 100)
-            var amplificador = parseInt(this.deuterio_produccion_amplificador || 0);
-            var fusion = parseInt(this.deuterio_gasto_fusion || 0);
-            var plasma = parseInt(this.deuterio_plasma || 0);
+            var amplificador = parseFloat(this.deuterio_produccion_amplificador || 0);
+            var fusion = parseFloat(this.deuterio_gasto_fusion || 0);
+            var plasma = parseFloat(this.deuterio_plasma || 0);
 
             if(equipoComandoActivo()) {
                 //geo = Math.round((this.deuterio_produccion_mina ||0) * 0.12);
-                geo = parseInt(this.deuterio_geologo || 0);
-                ofi = parseInt(this.deuterio_oficiales || 0);
+                geo = parseFloat(this.deuterio_geologo || 0);
+                ofi = parseFloat(this.deuterio_oficiales || 0);
             } else {
 
                 if(geologoActivo()) {
                     //geo = Math.round((this.deuterio_produccion_mina ||0) * 0.10);
-                    geo = parseInt(this.deuterio_geologo || 0);
+                    geo = parseFloat(this.deuterio_geologo || 0);
                 }
             }
 
             var life_form_deuterio = parseFloat( this.life_form_deuterio_bonus || 0 );
 
-            return mina + geo + plasma + ofi + (amplificador - fusion) + parseInt(this.deuterio_taladrador) + parseInt(this.deuterio_classe) + parseInt(this.deuterio_clase_alianza) + life_form_deuterio;
+            return mina + geo + plasma + ofi + (amplificador - fusion) + parseFloat(this.deuterio_taladrador) + parseFloat(this.deuterio_classe) + parseFloat(this.deuterio_clase_alianza) + life_form_deuterio;
         }
 
         this.getActualizado = function() {
@@ -1862,7 +1862,7 @@
 
             var lista = getElementsByClass("list")[0];
 
-            var bonus_taladrador = 0.03, /* 3% cada recurso */
+            var bonus_taladrador = 0.02, /* 2% cada recurso */
                 taladrador_qty = 0,
                 player_class = $("#characterclass div.characterclass"),
                 alliance_class = $(document).find(".allianceclass"),
@@ -2669,42 +2669,42 @@
             tabla += '<tr><td colspan="5"></td></tr>';
             tabla += '<tr align="right"><td></td><td>{HORA}</td><td>{DIARIA}</td><td>{SEMANAL}</td><td>{MENSUAL}</td></tr>';
 
-            tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDM" href="javascript:void(0)"><img src ="" id="img_detalleMetal"> {METAL}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalM) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*168) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*720) + '</b></td></tr>';
-            tabla += '<tr class="" align="right" id="detalleMetal_1" style="display:none"><td class="label">' + getStrSummary("basico") + '</td><td class="">' + mostrarNumero(baseM) + '</td><td class="">' + mostrarNumero(baseM*24) + '</td><td class="">' + mostrarNumero(baseM*168) + '</td><td class="">' + mostrarNumero(baseM*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleMetal_2" style="display:none"><td class="label">' + getStrSummary("metal") + '</td><td class="">' + mostrarNumero(minaM) + '</td><td class="">' + mostrarNumero(minaM*24) + '</td><td class="">' + mostrarNumero(minaM*168) + '</td><td class="">' + mostrarNumero(minaM*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleMetal_3" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_metal + '</td><td class="">' + mostrarNumero(plasmaM) + '</td><td class="">' + mostrarNumero(plasmaM*24) + '</td><td class="">' + mostrarNumero(plasmaM*168) + '</td><td class="">' + mostrarNumero(plasmaM*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleMetal_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoM) + '</td><td class="">' + mostrarNumero(geoM*24) + '</td><td class="">' + mostrarNumero(geoM*168) + '</td><td class="">' + mostrarNumero(geoM*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleMetal_5" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresM) + '</td><td class="">' + mostrarNumero(amplificadoresM*24) + '</td><td class="">' + mostrarNumero(amplificadoresM*168) + '</td><td class="">' + mostrarNumero(amplificadoresM*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleMetal_6" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorM) + '</td><td class="">' + mostrarNumero(taladradorM*24) + '</td><td class="">' + mostrarNumero(taladradorM*168) + '</td><td class="">' + mostrarNumero(taladradorM*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleMetal_7" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeM) + '</td><td class="">' + mostrarNumero(classeM*24) + '</td><td class="">' + mostrarNumero(classeM*168) + '</td><td class="">' + mostrarNumero(classeM*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleMetal_8" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliM) + '</td><td class="">' + mostrarNumero(clasAliM*24) + '</td><td class="">' + mostrarNumero(clasAliM*168) + '</td><td class="">' + mostrarNumero(clasAliM*720) + '</td></tr>';
+            tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDM" href="javascript:void(0)"><img src ="" id="img_detalleMetal"> {METAL}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalM) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24*7) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24*7*4) + '</b></td></tr>';
+            tabla += '<tr class="" align="right" id="detalleMetal_1" style="display:none"><td class="label">' + getStrSummary("basico") + '</td><td class="">' + mostrarNumero(baseM) + '</td><td class="">' + mostrarNumero(baseM*24) + '</td><td class="">' + mostrarNumero(baseM*24*7) + '</td><td class="">' + mostrarNumero(baseM*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleMetal_2" style="display:none"><td class="label">' + getStrSummary("metal") + '</td><td class="">' + mostrarNumero(minaM) + '</td><td class="">' + mostrarNumero(minaM*24) + '</td><td class="">' + mostrarNumero(minaM*24*7) + '</td><td class="">' + mostrarNumero(minaM*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleMetal_3" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_metal + '</td><td class="">' + mostrarNumero(plasmaM) + '</td><td class="">' + mostrarNumero(plasmaM*24) + '</td><td class="">' + mostrarNumero(plasmaM*24*7) + '</td><td class="">' + mostrarNumero(plasmaM*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleMetal_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoM+ofiM) + '</td><td class="">' + mostrarNumero((geoM+ofiM)*24) + '</td><td class="">' + mostrarNumero((geoM+ofiM)*24*7) + '</td><td class="">' + mostrarNumero((geoM+ofiM)*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleMetal_5" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresM) + '</td><td class="">' + mostrarNumero(amplificadoresM*24) + '</td><td class="">' + mostrarNumero(amplificadoresM*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresM*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleMetal_6" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorM) + '</td><td class="">' + mostrarNumero(taladradorM*24) + '</td><td class="">' + mostrarNumero(taladradorM*24*7) + '</td><td class="">' + mostrarNumero(taladradorM*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleMetal_7" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeM) + '</td><td class="">' + mostrarNumero(classeM*24) + '</td><td class="">' + mostrarNumero(classeM*24*7) + '</td><td class="">' + mostrarNumero(classeM*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleMetal_8" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliM) + '</td><td class="">' + mostrarNumero(clasAliM*24) + '</td><td class="">' + mostrarNumero(clasAliM*24*7) + '</td><td class="">' + mostrarNumero(clasAliM*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalleMetal_9" style="display:none"><td class="label"></td><td class=""></td><td class=""></td><td class=""></td><td class=""></td></tr>';
 
-            tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDC" href="javascript:void(0)"><img src ="" id="img_detalleCristal"> {CRISTAL}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalC) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*168) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*720) + '</b></td></tr>';
-            tabla += '<tr class="" align="right" id="detalleCristal_1" style="display:none"><td class="label">' + getStrSummary("basico") + '</td><td class="">' + mostrarNumero(baseC) + '</td><td class="">' + mostrarNumero(baseC*24) + '</td><td class="">' + mostrarNumero(baseC*168) + '</td><td class="">' + mostrarNumero(baseC*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleCristal_2" style="display:none"><td class="label">' + getStrSummary("cristal") + '</td><td class="">' + mostrarNumero(minaC) + '</td><td class="">' + mostrarNumero(minaC*24) + '</td><td class="">' + mostrarNumero(minaC*168) + '</td><td class="">' + mostrarNumero(minaC*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleCristal_3" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_cristal + '</td><td class="">' + mostrarNumero(plasmaC) + '</td><td class="">' + mostrarNumero(plasmaC*24) + '</td><td class="">' + mostrarNumero(plasmaC*168) + '</td><td class="">' + mostrarNumero(plasmaC*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleCristal_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoC) + '</td><td class="">' + mostrarNumero(geoC*24) + '</td><td class="">' + mostrarNumero(geoC*168) + '</td><td class="">' + mostrarNumero(geoC*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleCristal_5" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresC) + '</td><td class="">' + mostrarNumero(amplificadoresC*24) + '</td><td class="">' + mostrarNumero(amplificadoresC*168) + '</td><td class="">' + mostrarNumero(amplificadoresC*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleCristal_6" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorC) + '</td><td class="">' + mostrarNumero(taladradorC*24) + '</td><td class="">' + mostrarNumero(taladradorC*168) + '</td><td class="">' + mostrarNumero(taladradorC*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleCristal_7" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeC) + '</td><td class="">' + mostrarNumero(classeC*24) + '</td><td class="">' + mostrarNumero(classeC*168) + '</td><td class="">' + mostrarNumero(classeC*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleCristal_8" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliC) + '</td><td class="">' + mostrarNumero(clasAliC*24) + '</td><td class="">' + mostrarNumero(clasAliC*168) + '</td><td class="">' + mostrarNumero(clasAliC*720) + '</td></tr>';
+            tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDC" href="javascript:void(0)"><img src ="" id="img_detalleCristal"> {CRISTAL}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalC) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24*7) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24*7*4) + '</b></td></tr>';
+            tabla += '<tr class="" align="right" id="detalleCristal_1" style="display:none"><td class="label">' + getStrSummary("basico") + '</td><td class="">' + mostrarNumero(baseC) + '</td><td class="">' + mostrarNumero(baseC*24) + '</td><td class="">' + mostrarNumero(baseC*24*7) + '</td><td class="">' + mostrarNumero(baseC*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleCristal_2" style="display:none"><td class="label">' + getStrSummary("cristal") + '</td><td class="">' + mostrarNumero(minaC) + '</td><td class="">' + mostrarNumero(minaC*24) + '</td><td class="">' + mostrarNumero(minaC*24*7) + '</td><td class="">' + mostrarNumero(minaC*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleCristal_3" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_cristal + '</td><td class="">' + mostrarNumero(plasmaC) + '</td><td class="">' + mostrarNumero(plasmaC*24) + '</td><td class="">' + mostrarNumero(plasmaC*24*7) + '</td><td class="">' + mostrarNumero(plasmaC*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleCristal_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoC+ofiC) + '</td><td class="">' + mostrarNumero((geoC+ofiC)*24) + '</td><td class="">' + mostrarNumero((geoC+ofiC)*24*7) + '</td><td class="">' + mostrarNumero((geoC+ofiC)*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleCristal_5" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresC) + '</td><td class="">' + mostrarNumero(amplificadoresC*24) + '</td><td class="">' + mostrarNumero(amplificadoresC*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresC*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleCristal_6" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorC) + '</td><td class="">' + mostrarNumero(taladradorC*24) + '</td><td class="">' + mostrarNumero(taladradorC*24*7) + '</td><td class="">' + mostrarNumero(taladradorC*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleCristal_7" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeC) + '</td><td class="">' + mostrarNumero(classeC*24) + '</td><td class="">' + mostrarNumero(classeC*24*7) + '</td><td class="">' + mostrarNumero(classeC*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleCristal_8" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliC) + '</td><td class="">' + mostrarNumero(clasAliC*24) + '</td><td class="">' + mostrarNumero(clasAliC*24*7) + '</td><td class="">' + mostrarNumero(clasAliC*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalleCristal_9" style="display:none"><td class="label"></td><td class=""></td><td class=""></td><td class=""></td><td class=""></td></tr>';
 
-            tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDD" href="javascript:void(0)"><img src ="" id="img_detalleDeuterio"> {DEUTERIO}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalD) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*168) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*720) + '</b></td></tr>';
-            tabla += '<tr class="" align="right" id="detalleDeuterio_1" style="display:none"><td class="label">' + getStrSummary("deuterio") + '</td><td class="">' + mostrarNumero(minaD) + '</td><td class="">' + mostrarNumero(minaD*24) + '</td><td class="">' + mostrarNumero(minaD*168) + '</td><td class="">' + mostrarNumero(minaD*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleDeuterio_2" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_deuterio + '</td><td class="">' + mostrarNumero(plasmaD) + '</td><td class="">' + mostrarNumero(plasmaD*24) + '</td><td class="">' + mostrarNumero(plasmaD*168) + '</td><td class="">' + mostrarNumero(plasmaD*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleDeuterio_3" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoD) + '</td><td class="">' + mostrarNumero(geoD*24) + '</td><td class="">' + mostrarNumero(geoD*168) + '</td><td class="">' + mostrarNumero(geoD*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleDeuterio_4" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresD) + '</td><td class="">' + mostrarNumero(amplificadoresD*24) + '</td><td class="">' + mostrarNumero(amplificadoresD*168) + '</td><td class="">' + mostrarNumero(amplificadoresD*720) + '</td></tr>';
+            tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDD" href="javascript:void(0)"><img src ="" id="img_detalleDeuterio"> {DEUTERIO}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalD) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24*7) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24*7*4) + '</b></td></tr>';
+            tabla += '<tr class="" align="right" id="detalleDeuterio_1" style="display:none"><td class="label">' + getStrSummary("deuterio") + '</td><td class="">' + mostrarNumero(minaD) + '</td><td class="">' + mostrarNumero(minaD*24) + '</td><td class="">' + mostrarNumero(minaD*24*7) + '</td><td class="">' + mostrarNumero(minaD*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleDeuterio_2" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_deuterio + '</td><td class="">' + mostrarNumero(plasmaD) + '</td><td class="">' + mostrarNumero(plasmaD*24) + '</td><td class="">' + mostrarNumero(plasmaD*24*7) + '</td><td class="">' + mostrarNumero(plasmaD*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleDeuterio_3" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoD+ofiD) + '</td><td class="">' + mostrarNumero((geoD+ofiD)*24) + '</td><td class="">' + mostrarNumero((geoD+ofiD)*24*7) + '</td><td class="">' + mostrarNumero((geoD+ofiD)*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleDeuterio_4" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresD) + '</td><td class="">' + mostrarNumero(amplificadoresD*24) + '</td><td class="">' + mostrarNumero(amplificadoresD*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresD*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalleDeuterio_5" style="display:none"><td class="label">' + getStrSummary("fusion") + '</td><td class="">' + mostrarNumero(gastoFusion*-1) + '</td><td class="">' + mostrarNumero(gastoFusion*-24) + '</td><td class="">' + mostrarNumero(gastoFusion*-168) + '</td><td class="">' + mostrarNumero(gastoFusion*-720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleDeuterio_6" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorD) + '</td><td class="">' + mostrarNumero(taladradorD*24) + '</td><td class="">' + mostrarNumero(taladradorD*168) + '</td><td class="">' + mostrarNumero(taladradorD*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleDeuterio_7" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeD) + '</td><td class="">' + mostrarNumero(classeD*24) + '</td><td class="">' + mostrarNumero(classeD*168) + '</td><td class="">' + mostrarNumero(classeD*720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalleDeuterio_8" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliD) + '</td><td class="">' + mostrarNumero(clasAliD*24) + '</td><td class="">' + mostrarNumero(clasAliD*168) + '</td><td class="">' + mostrarNumero(clasAliD*720) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleDeuterio_6" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorD) + '</td><td class="">' + mostrarNumero(taladradorD*24) + '</td><td class="">' + mostrarNumero(taladradorD*24*7) + '</td><td class="">' + mostrarNumero(taladradorD*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleDeuterio_7" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeD) + '</td><td class="">' + mostrarNumero(classeD*24) + '</td><td class="">' + mostrarNumero(classeD*24*7) + '</td><td class="">' + mostrarNumero(classeD*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalleDeuterio_8" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliD) + '</td><td class="">' + mostrarNumero(clasAliD*24) + '</td><td class="">' + mostrarNumero(clasAliD*24*7) + '</td><td class="">' + mostrarNumero(clasAliD*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalleDeuterio_9" style="display:none"><td class="label"></td><td class=""></td><td class=""></td><td class=""></td><td class=""></td></tr>';
 
             tabla += '<tr><td colspan="5"><br></td></tr>';
-            tabla += '<tr class="" align="right"><td class="label">{TOTAL}</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)) + '</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)*24) + '</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)*168) + '</td><td class="momark">' + mostrarNumero((totalM+totalC+totalD)*720) + '</td></tr>';
-            tabla += '<tr class="" align="right"><td class="label">{EN_METAL}</td><td class="nomark">' + mostrarNumero((totalM)+((totalC)*1.5)+((totalD)*3)) + '</td><td class="nomark">' + mostrarNumero((totalM*24)+((totalC*24)*1.5)+((totalD*24)*3)) + '</td><td class="nomark">' + mostrarNumero((totalM*168)+((totalC*168)*1.5)+((totalD*168)*3)) + '</td><td class="momark">' + mostrarNumero((totalM*720)+((totalC*720)*1.5)+((totalD*720)*3))+ '</td></tr>';
+            tabla += '<tr class="" align="right"><td class="label">{TOTAL}</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)) + '</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)*24) + '</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)*24*7) + '</td><td class="momark">' + mostrarNumero((totalM+totalC+totalD)*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right"><td class="label">{EN_METAL}</td><td class="nomark">' + mostrarNumero((totalM)+((totalC)*1.5)+((totalD)*3)) + '</td><td class="nomark">' + mostrarNumero((totalM*24)+((totalC*24)*1.5)+((totalD*24)*3)) + '</td><td class="nomark">' + mostrarNumero((totalM*24*7)+((totalC*24*7)*1.5)+((totalD*24*7)*3)) + '</td><td class="momark">' + mostrarNumero((totalM*24*7*4)+((totalC*24*7*4)*1.5)+((totalD*24*7*4)*3))+ '</td></tr>';
             tabla += '<tr class="" align="right" height="50"><td colspan="5">' + numPlanets + ' {PLANETAS}:   ' + listaPlanetas.replace(/;/g, "  ") + '</td></tr></form>';
             tabla += '</table><br><br>';
 
@@ -2735,7 +2735,7 @@
             textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
             textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {COLOR_METAL}" + mostrarNumero((baseM+minaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+taladradorD+classeD)*24) + "{/COLOR} {DEUTERIO}{NL}";
             textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR}" + plasmaSTR_deuterio + "{DEUTERIO}{NL}";
-            textoBB += '{GEOLOGO}' + geoSTR + ": {COLOR_METAL}" + mostrarNumero(geoM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(geoC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(geoD*24) + "{/COLOR} {DEUTERIO}{NL}";
+            textoBB += '{GEOLOGO}' + geoSTR + ": {COLOR_METAL}" + mostrarNumero((geoM+ofiM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((geoC+ofiC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((geoD+ofiD)*24) + "{/COLOR} {DEUTERIO}{NL}";
             textoBB += getStrSummary("amplificador") + ": {COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
             textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
             textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero(totalM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(totalC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(totalD*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
