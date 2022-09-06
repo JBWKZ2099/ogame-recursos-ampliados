@@ -39,8 +39,10 @@
     var patron_completo;
 
     /*Check if tech data is on localStorage*/
-    if( typeof localStorage.UV_playerResearch==="undefined" ) {
+    if( typeof localStorage.UV_playerResearch==="undefined" || location.href.indexOf('page=ingame&component=research')!=-1 ) {
         var theHref = location.href;
+        var researchPage = location.href.indexOf('page=ingame&component=research')!=-1;
+
         /*Redirect to research page*/
         if( theHref.indexOf("research")==-1 ) {
             var researchHref = theHref.split("/game")[0]+"/game/index.php?page=ingame&component=research";
@@ -78,7 +80,12 @@
             researches = researches.slice(0,-1)+"}";
 
             localStorage.UV_playerResearch = researches;
-            window.location.href = localStorage._previousURL_resourceSettings;
+
+            if( typeof localStorage._previousURL_resourceSettings!="undefined" ){
+                var prevURL = localStorage._previousURL_resourceSettings;
+                localStorage.removeItem("_previousURL_resourceSettings");
+                window.location.href = prevURL;
+            }
         }
     }
 
@@ -2516,7 +2523,7 @@
     if (location.href.indexOf('-de.ogame.gameforge.com') != -1) { LANG = LANG_DE; }
     if (location.href.indexOf('-nl.ogame.gameforge.com') != -1) { LANG = LANG_NL; }
 
-    if( location.href.indexOf('/game/index.php?page=ingame&component=resourcesettings')!=-1 || location.href.indexOf('/game/index.php?page=ingame&component=resourceSettings')!=-1 || location.href.indexOf('/game/index.php/page=ingame&component=research')!=-1 ) {
+    if( location.href.indexOf('/game/index.php?page=ingame&component=resourcesettings')!=-1 || location.href.indexOf('/game/index.php?page=ingame&component=resourceSettings')!=-1 ) {
 
         getDatosSummary();
 
