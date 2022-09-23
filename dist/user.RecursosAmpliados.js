@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 2.97
+// @version 2.98
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados
@@ -1839,11 +1839,7 @@
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
         if(str.toUpperCase() == "PLASMA") {
-            ret = getContenido(lista, 10,0).innerHTML;
-
-            /*Life Forms Validation*/
-            if( $("#lifeform").length>0 )
-                ret = getContenido(lista, 22,0).innerHTML;
+            ret = $(lista).find("tbody > tr.122 > td:nth-child(1)").html();
 
             // ret = ret.substring(0, ret.indexOf("(")); // Deprecated on OGame v9
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
@@ -1878,16 +1874,12 @@
 
         /*Life Forms Validation*/
         if( str.toUpperCase() == "LIFEFORMS" ) {
-            ret = getContenido(lista, 29,0).innerHTML;
+            ret = $(lista).find("tbody > tr.1006 > td:first-child").html();
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
         if(str.toUpperCase() == "TOTAL_DIA") {
-            ret = getContenido(lista, 19,0).innerHTML;
-
-            /*Life Forms Validation*/
-            if( $("#lifeform").length>0 )
-                ret = getContenido(lista, 32,0).innerHTML;
+            ret = $(lista).find("tbody > tr.summary > td:nth-child(2)").html();
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
             ret = ret.replace("<em>","").replace("</em>","");
         }
@@ -2000,13 +1992,14 @@
             planeta.metal_nivel_mina = parseInt(parcial)
 
             // taladrador
-            if( life_forms.indexOf(life_form)>-1 ) {
-                if( life_form=="Rock´tal" || life_form=="Rock`tal" )
-                    taladrador_qty = getContenido(lista, 20,0).innerHTML;
-                else
-                    taladrador_qty = getContenido(lista, 21,0).innerHTML;
-            } else
-                taladrador_qty = getContenido(lista, 9,0).innerHTML;
+            taladrador_qty = $(lista).find("tbody > tr.217 > td:first-child").html();
+            // if( life_forms.indexOf(life_form)>-1 ) {
+            //     if( life_form=="Rock´tal" || life_form=="Rock`tal" )
+            //         taladrador_qty = getContenido(lista, 20,0).innerHTML;
+            //     else
+            //         taladrador_qty = getContenido(lista, 21,0).innerHTML;
+            // } else
+            //     taladrador_qty = getContenido(lista, 9,0).innerHTML;
 
             taladrador_qty = (taladrador_qty.split(": ")[1]).split("/")[0];
             /*taladrador_qty = taladrador_qty.substring(taladrador_qty.indexOf('/'), taladrador_qty.indexOf(': ')+2);*/
@@ -2036,10 +2029,17 @@
              */
 
             // amplificador
-            parcial = getContenido(lista, 11,2).innerHTML;
+            parcial = $(lista).find("tbody > tr.1000 > td:nth-child(3)").html();
 
-            if( $("#lifeform").length>0 )
-                parcial = getContenido(lista, 23,2).innerHTML;
+            // parcial = getContenido(lista, 11,2).innerHTML;
+
+            // if( $("#lifeform").length>0 ) {
+            //     /*Validación Rocktal*/
+            //     if( life_form=="Rock´tal" || life_form=="Rock`tal" )
+            //         parcial = getContenido(lista, 22,2).innerHTML;
+            //     else
+            //         parcial = getContenido(lista, 23,2).innerHTML;
+            // }
 
             parcial = parcial.split("title=\"")[1].split("\"")[0];
             parcial = parcial.trim();
@@ -2135,7 +2135,7 @@
             planeta.cristal_nivel_mina = parseInt(parcial);
 
             // amplificador
-            parcial = getContenido(lista, 11,3).innerHTML;
+            parcial = $(lista).find("tbody > tr.1000 > td:nth-child(4)").html();
 
             if( $("#lifeform").length>0 )
                 parcial = getContenido(lista, 23,3).innerHTML;
@@ -2253,7 +2253,7 @@
             planeta.deuterio_gasto_fusion = parseInt(parcial);
 
             // amplificador
-            parcial = getContenido(lista, 11,4).innerHTML;
+            parcial = $(lista).find("tbody > tr.1000 > td:nth-child(5)").html();
 
             if( $("#lifeform").length>0 )
                 parcial = getContenido(lista, 23,4).innerHTML;
@@ -2354,13 +2354,13 @@
             if( $("#lifeform").length>0 ) {
                 // forma de vida bonus metal
                 /*parcial = getContenido(lista, 28,2).innerHTML;*/ /*Ejemplo para saber si hay miles o millones*/
-                parcial = getContenido(lista, 29,2).innerHTML;
+                parcial = $(lista).find("tbody > tr.1006 > td:nth-child(3)").html();
                 parcial = parcial.split("title=\"")[1].split("\"")[0];
                 parcial = parcial.trim();
 
                 parcial2 = parcial.split(".");
 
-                if( parcial2.length<2 ) {
+                if( parcial2.length>2 ) {
                     parcial3 = "";
                     $.each(parcial2, function(i, el) {
 
@@ -2376,14 +2376,14 @@
                 planeta.life_form_metal_bonus = parseFloat(parcial) || 0;
 
                 // forma de vida bonus cristal
-                parcial = getContenido(lista, 29,3).innerHTML;
+                parcial = $(lista).find("tbody > tr.1006 > td:nth-child(4)").html();
                 parcial = parcial.split("title=\"")[1].split("\"")[0];
                 parcial = parcial.trim();
 
-                var parcial2 = parcial.split(".");
+                parcial2 = parcial.split(".");
 
-                if( parcial2.length<2 ) {
-                    var parcial3 = "";
+                if( parcial2.length>2 ) {
+                    parcial3 = "";
                     $.each(parcial2, function(i, el) {
 
                         if( i<(parcial2.length-1) )
@@ -2397,14 +2397,14 @@
                 planeta.life_form_cristal_bonus = parseFloat(parcial) || 0;
 
                 // forma de vida bonus deuterio
-                parcial = getContenido(lista, 29,4).innerHTML;
+                parcial = $(lista).find("tbody > tr.1006 > td:nth-child(5)").html();
                 parcial = parcial.split("title=\"")[1].split("\"")[0];
                 parcial = parcial.trim();
 
-                var parcial2 = parcial.split(".");
+                parcial2 = parcial.split(".");
 
-                if( parcial2.length<2 ) {
-                    var parcial3 = "";
+                if( parcial2.length>2 ) {
+                    parcial3 = "";
                     $.each(parcial2, function(i, el) {
 
                         if( i<(parcial2.length-1) )
@@ -2423,9 +2423,12 @@
             }
 
             // ----- almacenes ------------------------------------------------------------
-
             // almacen de metal
-            parcial = getContenido(lista, 18,1).innerHTML;
+            if( $("#lifeform").length>0 )
+                parcial = $(lista).find("tbody > tr.1006").next().find("td:nth-child(2)").html();
+            else
+                parcial = $(lista).find("tbody > tr.1005").next().find("td:nth-child(2)").html();
+
             parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
             parcial = parcial.trim();
             if(parcial.indexOf(unsafe.LocalizationStrings.unitMega) != -1) {
@@ -2440,7 +2443,11 @@
 
 
             // almacen de cristal
-            parcial = getContenido(lista, 18,2).innerHTML;
+            if( $("#lifeform").length>0 )
+                parcial = $(lista).find("tbody > tr.1006").next().find("td:nth-child(3)").html();
+            else
+                parcial = $(lista).find("tbody > tr.1005").next().find("td:nth-child(3)").html();
+
             parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
             parcial = parcial.trim();
             if(parcial.indexOf(unsafe.LocalizationStrings.unitMega) != -1) {
@@ -2455,7 +2462,11 @@
 
 
             // almacen de deuterio
-            parcial = getContenido(lista, 18,3).innerHTML;
+            if( $("#lifeform").length>0 )
+                parcial = $(lista).find("tbody > tr.1006").next().find("td:nth-child(4)").html();
+            else
+                parcial = $(lista).find("tbody > tr.1005").next().find("td:nth-child(4)").html();
+
             parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
             parcial = parcial.trim();
             if(parcial.indexOf(unsafe.LocalizationStrings.unitMega) != -1) {
@@ -2483,7 +2494,6 @@
                     planeta.deuterio_produccion_mina = parseInt((planeta.deuterio_produccion_mina/110)*100);
                 }
             }*///YA NO ESTA INTEGRADO POR ESO NO REQUIERE RESTARLO.--------------------------------VERSION OGAME 6.5.1 +
-
             options.set(getPosActual() + "_objplanet", planeta.save());
 
         }
