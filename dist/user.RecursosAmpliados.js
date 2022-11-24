@@ -1956,7 +1956,7 @@
 
             var lista = getElementsByClass("list")[0];
 
-            var bonus_taladrador = 0.02, /* 2% cada recurso */
+            var bonus_taladrador = geologoActivo() ? 0.03 : 0.02, /* 2% cada recurso, si está geólogo es 3% */
                 taladrador_qty = 0,
                 taladrador_percentage = 1,
                 player_class = $("#characterclass div.characterclass"),
