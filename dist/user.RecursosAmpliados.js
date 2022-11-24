@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 2.98
+// @version 3
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados
@@ -18,9 +18,9 @@
 //
 // ==/UserScript==
 
-(function () {
+(async function () {
 
-    var SCRIPT_VERSION = "2.97";
+    var SCRIPT_VERSION = "3";
 
     var unsafe = (typeof unsafeWindow) != "undefined" ? unsafeWindow : window;
 
@@ -2501,6 +2501,49 @@
 
     }
 
+    async function getSummaryFromEmpirePage() {
+        var theHref = location.href;
+        var lang = theHref.split(".ogame.gameforge")[0].split("://")[1].split("-")[1];
+        var uni = theHref.split(".ogame.gameforge")[0].split("://")[1].split("-")[0];
+
+        return $.get(`https://${uni}-${lang}.ogame.gameforge.com/game/index.php?page=standalone&component=empire`, function(){})
+            .then(function(resp){
+                planets = JSON.parse( resp.substring( (resp.indexOf("createImperiumHtml")+47), (resp.indexOf("initEmpire")-16) ) ).planets;
+                var has_moon = false;
+
+                planets.forEach(function (planet) {
+                    for( var key in planet ) {
+                        if( key.includes("html") )
+                            delete planet[key];
+                    }
+                    if( planet.moonID )
+                        has_moon = true;
+                });
+
+                if( has_moon ) {
+                    return $.get(`https://${uni}-${lang}.ogame.gameforge.com/game/index.php?page=standalone&component=empire&planetType=1`, function(){})
+                        .then(function(resp){
+                            var moons = JSON.parse( resp.substring( (resp.indexOf("createImperiumHtml")+47), (resp.indexOf("initEmpire")-16) ) ).planets;
+
+                            planets.forEach(function(planet) {
+                                moons.forEach(function(moon, j) {
+                                    if( planet.moonID==moon.id ) {
+                                        for( var key in moon ) {
+                                            if( key.includes("html") )
+                                                delete moon[key];
+                                        }
+                                        planet.moon = moon;
+                                    }
+                                });
+                            });
+                            return planets;
+                        });
+                }
+
+                return planets;
+            });
+    }
+
     function ogameInfinityChecker() {
         var ogk = false;
 
@@ -2535,567 +2578,567 @@
 
     if( location.href.indexOf('/game/index.php?page=ingame&component=resourcesettings')!=-1 || location.href.indexOf('/game/index.php?page=ingame&component=resourceSettings')!=-1 ) {
 
-        getDatosSummary();
-
-        var nivel_plasma = getNivelPlasma();
-
-        var planets = getElementsByClass("smallplanet");
-        var numPlanets = planets.length;
-
-        if ( numPlanets > 0 ) {
-
-
-            // --- lista de planetas ---
-            var listaPlanetas = "";
-            for (var i=0; i<planets.length; i++ ) {
-                var cord = getElementsByClass("planet-koords", planets[i]);
-                var nombre = getElementsByClass("planet-name", planets[i]);
-                listaPlanetas += cord[0].innerHTML + ";";
-                options.set(cord[0].innerHTML + "_nombre", nombre[0].innerHTML);
-            }
-
-            options.set("lista", listaPlanetas);
-
-            // --- calcular total ---
-            var metalTH = 0;
-            var cristalTH = 0;
-            var deuTH = 0;
-            var sep = listaPlanetas.split(";");
-
-            var plasmaM = plasmaC = plasmaD = 0;
-            var baseM = baseC = baseD = 0;
-            var minaM = minaC = minaD = 0;
-            var geoM = geoC = geoD = 0;
-            var ofiM = ofiC = ofiD = 0;
-            var amplificadoresM = amplificadoresC = amplificadoresD = 0;
-
-            var geoSTR = " (+0%)";
-            var ofiSTR = " (+0%)";
-            var plasmaSTR_metal = " (+" + nivel_plasma + "%)";
-            var plasmaSTR_cristal = " (+" + (Math.round((nivel_plasma*0.66)*100)/100)  + "%)";
-            var plasmaSTR_deuterio = " (+" + (Math.round((nivel_plasma*0.33)*100)/100)  + "%)";
-
-            var gastoFusion = 0;
-
-            var totalM = totalC = totalD = 0;
-
-            var taladradorM = 0;
-            var classeM = 0;
-            var taladradorC = 0;
-            var classeC = 0;
-            var taladradorD = 0;
-            var classeD = 0;
-
-            var clasAliM = 0;
-            var clasAliC = 0;
-            var clasAliD = 0;
-
-            var lifeFormsMetal = 0;
-            var lifeFormsCristal = 0;
-            var lifeFormsDeuterio = 0;
-
-            for(var k = 0; k < sep.length; k++){
-                if(sep[k].length > 3) {
-                    var planeta = new ObjPlaneta();
-                    planeta.load(options.get(sep[k] + "_objplanet"));
-
-                    baseM += parseInt(planeta.metal_base || 0);
-                    baseC += parseInt(planeta.cristal_base || 0);
-                    baseD += parseInt(planeta.deuterio_base || 0);
-
-                    minaM += parseInt(planeta.metal_produccion_mina || 0);
-                    minaC += parseInt(planeta.cristal_produccion_mina || 0);
-                    minaD += parseInt(planeta.deuterio_produccion_mina || 0);
-
-                    plasmaM += parseFloat(planeta.metal_plasma || 0);
-                    plasmaC += parseFloat(planeta.cristal_plasma || 0) ;
-                    plasmaD += parseFloat(planeta.deuterio_plasma || 0);
-
-                    amplificadoresM += parseFloat(planeta.metal_produccion_amplificador || 0);
-                    amplificadoresC += parseFloat(planeta.cristal_produccion_amplificador || 0);
-                    amplificadoresD += parseFloat(planeta.deuterio_produccion_amplificador || 0);
-
-                    gastoFusion += parseInt(planeta.deuterio_gasto_fusion || 0);
-
-                    taladradorM += parseFloat(planeta.metal_taladrador  || 0);
-                    classeM += parseFloat(planeta.metal_classe  || 0);
-                    taladradorC += parseFloat(planeta.cristal_taladrador  || 0);
-                    classeC += parseFloat(planeta.cristal_classe  || 0);
-                    taladradorD += parseFloat(planeta.deuterio_taladrador  || 0);
-                    classeD += parseFloat(planeta.deuterio_classe  || 0);
-
-                    clasAliM += parseFloat(planeta.metal_clase_alianza  || 0);
-                    clasAliC += parseFloat(planeta.cristal_clase_alianza  || 0);
-                    clasAliD += parseFloat(planeta.deuterio_clase_alianza  || 0);
-
-
-                    if(equipoComandoActivo()) {
-                        geoM += parseFloat(planeta.metal_geologo || 0);
-                        geoC += parseFloat(planeta.cristal_geologo || 0);
-                        geoD += parseFloat(planeta.deuterio_geologo || 0);
-                        ofiM += parseFloat(planeta.metal_oficiales || 0);
-                        ofiC += parseFloat(planeta.cristal_oficiales || 0);
-                        ofiD += parseFloat(planeta.deuterio_oficiales || 0);
-                        geoSTR = " (+10%)";
-                        ofiSTR = " (+2%)";
-                    } else {
-
-                        if(geologoActivo()) {
-                            geoM += parseFloat(planeta.metal_geologo || 0);
-                            geoC += parseFloat(planeta.cristal_geologo || 0);
-                            geoD += parseFloat(planeta.deuterio_geologo || 0);
-                            geoSTR = " (+10%)";
-                        }
-                    }
-
-                    /*Formas de vida*/
-                    lifeFormsMetal += parseFloat( planeta.life_form_metal_bonus || 0 );
-                    lifeFormsCristal += parseFloat( planeta.life_form_cristal_bonus || 0 );
-                    lifeFormsDeuterio += parseFloat( planeta.life_form_deuterio_bonus || 0 );
-
-                    totalM = baseM + minaM + geoM + ofiM + plasmaM + amplificadoresM + taladradorM + classeM + clasAliM + lifeFormsMetal;
-                    totalC = baseC + minaC + geoC + ofiC + plasmaC + amplificadoresC + taladradorC + classeC + clasAliC + lifeFormsCristal;
-                    totalD = baseD + minaD + geoD + ofiD + plasmaD + (amplificadoresD - gastoFusion) + taladradorD + classeD + clasAliD + lifeFormsDeuterio;
-                }
-            }
-
-
-            // --- crea la tabla ---
-
-
-            var main = getElementsByClass("mainRS")[0];
-
-
-            var divPorPlanetas = document.createElement('div');
-            var divAlmacen = document.createElement('div');
-            var divRecursos = document.createElement('div');
-            var divBB = document.createElement('div');
-            var divFlotas = document.createElement('div');
-            var divDefensas = document.createElement('div');
-            var divFinal = document.createElement('div');
-
-            var tabla = "";
-            var textoBB = "";
-
-            // --- tabla con los recursos diarios por planetas
-
-            var tablaPlanetas = "";
-            tablaPlanetas += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
-            tablaPlanetas += '<tr><td></td><td></td><td></td><td><br></td></tr>';
-            tablaPlanetas += '<tr><td align="center" class="text-center" colspan="4"><font color="#FF4000"><p style="font-size:20px">';
-            tablaPlanetas += ' {RECURSOS_PLANETAS} </p></font><br></td></tr>';
-            tablaPlanetas += '<tr><td colspan="4"></td></tr>';
-            tablaPlanetas += '<tr align="right"><td></td><td>{METAL}</td><td>{CRISTAL}</td><td>{DEUTERIO}</td></tr>';
-
-            //var sep = listaPlanetas.split(";");
-            for(var k = 0; k < sep.length; k++){
-                if(sep[k].length > 3) {
-                    var planeta = new ObjPlaneta()
-                    planeta.load(options.get(sep[k] + "_objplanet"));
-
-                    var tr = ((k % 2)==0)?'<tr class="alt">':'<tr>';
-                    tablaPlanetas += tr + '<td class="label">';
-                    tablaPlanetas += (getPosActual() == sep[k]?'<font color="#FF4000"><b>' + planeta.coordenadas + '</b></font>': planeta.coordenadas) + "  " + planeta.nombre;
-                    tablaPlanetas += planeta.getActualizado();
-                    tablaPlanetas += '</td><td class="undermark">' + mostrarNumero(planeta.getTotalM()*24) + getNivelMina(1, sep, k);
-                    tablaPlanetas += '</td><td class="undermark">' + mostrarNumero(planeta.getTotalC()*24) + getNivelMina(2, sep, k);
-                    tablaPlanetas += '</td><td class="undermark">' + mostrarNumero(planeta.getTotalD()*24) + getNivelMina(3, sep, k);
-                    tablaPlanetas += '</td></tr>';
-
-                }
-            }
-
-            tablaPlanetas += '<tr><td colspan="4"></td></tr>';
-            tablaPlanetas += '</table>';
-
-
-            // --- tabla con los almacenes
-
-            var tablaAlmacen = "";
-            tablaAlmacen += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
-            tablaAlmacen += '<tr><td></td><td></td><td></td><td></td><td></td><td></td><td><br></td></tr>';
-            tablaAlmacen += '<tr><td align="center" class="text-center" colspan="7"><font color="#FF4000"><p style="font-size:20px">{ALMACEN_TIEMPO} </p></font><br></td></tr>';
-            tablaAlmacen += '<tr><td colspan="7"></td></tr>';
-            tablaAlmacen += '<tr align="right"><td></td><td>{METAL}</td><td></td><td>{CRISTAL}</td><td></td><td>{DEUTERIO}</td><td></td></tr>';
-
-            for(var k = 0; k < sep.length; k++){
-                if(sep[k].length > 3) {
-                    var planeta = new ObjPlaneta()
-                    planeta.load(options.get(sep[k] + "_objplanet"));
-
-                    var tr = ((k % 2)==0)?'<tr class="alt" align="right">':'<tr align="right">';
-
-                    tablaAlmacen += tr + '<td class="label">';
-                    tablaAlmacen += (getPosActual() == sep[k]?'<font color="#FF4000"><b>' + planeta.coordenadas + '</b></font>': planeta.coordenadas) + "  " + planeta.nombre;
-                    tablaAlmacen += planeta.getActualizado() + '</td><td class="undermark">';
-                    tablaAlmacen += A(planeta.almacen_metal) + '</td><td><p align="center">' + getTiempoLlenado(planeta.getTotalM()*24,planeta.almacen_metal);
-                    tablaAlmacen += '</p></td><td class="undermark">' + A(planeta.almacen_cristal) + '</td><td><p align="center">';
-                    tablaAlmacen += getTiempoLlenado(planeta.getTotalC()*24,planeta.almacen_cristal) + '</p></td><td class="undermark">' + A(planeta.almacen_deuterio);
-                    tablaAlmacen += '</td><td><p align="center">' + getTiempoLlenado(planeta.getTotalD()*24, planeta.almacen_deuterio) + '</p></td></tr>';
-                }
-            }
-            tablaAlmacen += '<tr><td colspan="7"></td></tr>';
-            tablaAlmacen += '</table>';
-
-
-            // --- tabla con los recursos diarios/semanales/mensuales
-
-            tabla += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
-            tabla += '<tr height="50" style="display:none;"><td width="28%"></td><td width="18%"></td><td width="18%"></td><td width="18%"></td><td width="18%"></td></tr>';
-            tabla += '<tr><td align="center" class="text-center" colspan="5"><font color="#FF4000"><p style="font-size:23px"> {PRODUCCION_IMPERIAL} ' + getNombreJugador() + ' </p></font></td></tr>';
-            tabla += '<tr><td colspan="5"></td></tr>';
-            tabla += '<tr align="right"><td></td><td>{HORA}</td><td>{DIARIA}</td><td>{SEMANAL}</td><td>{MENSUAL}</td></tr>';
-
-            var tipo = "Metal";
-            tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDM" href="javascript:void(0)"><img src ="" id="img_detalleMetal"> {METAL}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalM) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24*7) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24*7*4) + '</b></td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_1" style="display:none"><td class="label">' + getStrSummary("basico") + '</td><td class="">' + mostrarNumero(baseM) + '</td><td class="">' + mostrarNumero(baseM*24) + '</td><td class="">' + mostrarNumero(baseM*24*7) + '</td><td class="">' + mostrarNumero(baseM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_2" style="display:none"><td class="label">' + getStrSummary("metal") + '</td><td class="">' + mostrarNumero(minaM) + '</td><td class="">' + mostrarNumero(minaM*24) + '</td><td class="">' + mostrarNumero(minaM*24*7) + '</td><td class="">' + mostrarNumero(minaM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_3" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_metal + '</td><td class="">' + mostrarNumero(plasmaM) + '</td><td class="">' + mostrarNumero(plasmaM*24) + '</td><td class="">' + mostrarNumero(plasmaM*24*7) + '</td><td class="">' + mostrarNumero(plasmaM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoM) + '</td><td class="">' + mostrarNumero(geoM*24) + '</td><td class="">' + mostrarNumero(geoM*24*7) + '</td><td class="">' + mostrarNumero(geoM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_5" style="display:none"><td class="label">{EQUIPO_COMANDO}' + ofiSTR + '</td><td class="">' + mostrarNumero(ofiM) + '</td><td class="">' + mostrarNumero(ofiM*24) + '</td><td class="">' + mostrarNumero(ofiM*24*7) + '</td><td class="">' + mostrarNumero(ofiM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_6" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresM) + '</td><td class="">' + mostrarNumero(amplificadoresM*24) + '</td><td class="">' + mostrarNumero(amplificadoresM*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorM) + '</td><td class="">' + mostrarNumero(taladradorM*24) + '</td><td class="">' + mostrarNumero(taladradorM*24*7) + '</td><td class="">' + mostrarNumero(taladradorM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeM) + '</td><td class="">' + mostrarNumero(classeM*24) + '</td><td class="">' + mostrarNumero(classeM*24*7) + '</td><td class="">' + mostrarNumero(classeM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliM) + '</td><td class="">' + mostrarNumero(clasAliM*24) + '</td><td class="">' + mostrarNumero(clasAliM*24*7) + '</td><td class="">' + mostrarNumero(clasAliM*24*7*4) + '</td></tr>';
-
-            var detail_id = 10;
-            if( $("#lifeform").length>0 ) {
-                tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label">' + getStrSummary("lifeforms") + '</td><td class="">' + mostrarNumero(lifeFormsMetal) + '</td><td class="">' + mostrarNumero(lifeFormsMetal*24) + '</td><td class="">' + mostrarNumero(lifeFormsMetal*24*7) + '</td><td class="">' + mostrarNumero(lifeFormsMetal*24*7*4) + '</td></tr>';
-                detail_id = 11;
-            }
-
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label"></td><td class=""></td><td class=""></td><td class=""></td><td class=""></td></tr>';
-
-            tipo = "Cristal";
-            tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDC" href="javascript:void(0)"><img src ="" id="img_detalleCristal"> {CRISTAL}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalC) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24*7) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24*7*4) + '</b></td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_1" style="display:none"><td class="label">' + getStrSummary("basico") + '</td><td class="">' + mostrarNumero(baseC) + '</td><td class="">' + mostrarNumero(baseC*24) + '</td><td class="">' + mostrarNumero(baseC*24*7) + '</td><td class="">' + mostrarNumero(baseC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_2" style="display:none"><td class="label">' + getStrSummary("cristal") + '</td><td class="">' + mostrarNumero(minaC) + '</td><td class="">' + mostrarNumero(minaC*24) + '</td><td class="">' + mostrarNumero(minaC*24*7) + '</td><td class="">' + mostrarNumero(minaC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_3" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_cristal + '</td><td class="">' + mostrarNumero(plasmaC) + '</td><td class="">' + mostrarNumero(plasmaC*24) + '</td><td class="">' + mostrarNumero(plasmaC*24*7) + '</td><td class="">' + mostrarNumero(plasmaC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoC) + '</td><td class="">' + mostrarNumero(geoC*24) + '</td><td class="">' + mostrarNumero(geoC*24*7) + '</td><td class="">' + mostrarNumero(geoC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_5" style="display:none"><td class="label">{EQUIPO_COMANDO}' + ofiSTR + '</td><td class="">' + mostrarNumero(ofiC) + '</td><td class="">' + mostrarNumero(ofiC*24) + '</td><td class="">' + mostrarNumero(ofiC*24*7) + '</td><td class="">' + mostrarNumero(ofiC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_6" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresC) + '</td><td class="">' + mostrarNumero(amplificadoresC*24) + '</td><td class="">' + mostrarNumero(amplificadoresC*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorC) + '</td><td class="">' + mostrarNumero(taladradorC*24) + '</td><td class="">' + mostrarNumero(taladradorC*24*7) + '</td><td class="">' + mostrarNumero(taladradorC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeC) + '</td><td class="">' + mostrarNumero(classeC*24) + '</td><td class="">' + mostrarNumero(classeC*24*7) + '</td><td class="">' + mostrarNumero(classeC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliC) + '</td><td class="">' + mostrarNumero(clasAliC*24) + '</td><td class="">' + mostrarNumero(clasAliC*24*7) + '</td><td class="">' + mostrarNumero(clasAliC*24*7*4) + '</td></tr>';
-
-            detail_id = 10;
-            if( $("#lifeform").length>0 ) {
-                tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label">' + getStrSummary("lifeforms") + '</td><td class="">' + mostrarNumero(lifeFormsCristal) + '</td><td class="">' + mostrarNumero(lifeFormsCristal*24) + '</td><td class="">' + mostrarNumero(lifeFormsCristal*24*7) + '</td><td class="">' + mostrarNumero(lifeFormsCristal*24*7*4) + '</td></tr>';
-                detail_id = 11;
-            }
-
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label"></td><td class=""></td><td class=""></td><td class=""></td><td class=""></td></tr>';
-
-            tipo = "Deuterio";
-            tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDD" href="javascript:void(0)"><img src ="" id="img_detalleDeuterio"> {DEUTERIO}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalD) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24*7) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24*7*4) + '</b></td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_1" style="display:none"><td class="label">' + getStrSummary("deuterio") + '</td><td class="">' + mostrarNumero(minaD) + '</td><td class="">' + mostrarNumero(minaD*24) + '</td><td class="">' + mostrarNumero(minaD*24*7) + '</td><td class="">' + mostrarNumero(minaD*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_2" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_deuterio + '</td><td class="">' + mostrarNumero(plasmaD) + '</td><td class="">' + mostrarNumero(plasmaD*24) + '</td><td class="">' + mostrarNumero(plasmaD*24*7) + '</td><td class="">' + mostrarNumero(plasmaD*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_3" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoD) + '</td><td class="">' + mostrarNumero(geoD*24) + '</td><td class="">' + mostrarNumero(geoD*24*7) + '</td><td class="">' + mostrarNumero(geoD*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_4" style="display:none"><td class="label">{EQUIPO_COMANDO}' + ofiSTR + '</td><td class="">' + mostrarNumero(ofiD) + '</td><td class="">' + mostrarNumero(ofiD*24) + '</td><td class="">' + mostrarNumero(ofiD*24*7) + '</td><td class="">' + mostrarNumero(ofiD*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_5" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresD) + '</td><td class="">' + mostrarNumero(amplificadoresD*24) + '</td><td class="">' + mostrarNumero(amplificadoresD*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresD*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_6" style="display:none"><td class="label">' + getStrSummary("fusion") + '</td><td class="">' + mostrarNumero(gastoFusion*-1) + '</td><td class="">' + mostrarNumero(gastoFusion*-24) + '</td><td class="">' + mostrarNumero(gastoFusion*-168) + '</td><td class="">' + mostrarNumero(gastoFusion*-720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorD) + '</td><td class="">' + mostrarNumero(taladradorD*24) + '</td><td class="">' + mostrarNumero(taladradorD*24*7) + '</td><td class="">' + mostrarNumero(taladradorD*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeD) + '</td><td class="">' + mostrarNumero(classeD*24) + '</td><td class="">' + mostrarNumero(classeD*24*7) + '</td><td class="">' + mostrarNumero(classeD*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliD) + '</td><td class="">' + mostrarNumero(clasAliD*24) + '</td><td class="">' + mostrarNumero(clasAliD*24*7) + '</td><td class="">' + mostrarNumero(clasAliD*24*7*4) + '</td></tr>';
-
-            detail_id = 10;
-            if( $("#lifeform").length>0 ) {
-                tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label">' + getStrSummary("lifeforms") + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio) + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio*24) + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio*24*7) + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio*24*7*4) + '</td></tr>';
-                detail_id = 11;
-            }
-
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label"></td><td class=""></td><td class=""></td><td class=""></td><td class=""></td></tr>';
-
-            tabla += '<tr><td colspan="5"><br></td></tr>';
-            tabla += '<tr class="" align="right"><td class="label">{TOTAL}</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)) + '</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)*24) + '</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)*24*7) + '</td><td class="momark">' + mostrarNumero((totalM+totalC+totalD)*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right"><td class="label">{EN_METAL}</td><td class="nomark">' + mostrarNumero((totalM)+((totalC)*1.5)+((totalD)*3)) + '</td><td class="nomark">' + mostrarNumero((totalM*24)+((totalC*24)*1.5)+((totalD*24)*3)) + '</td><td class="nomark">' + mostrarNumero((totalM*24*7)+((totalC*24*7)*1.5)+((totalD*24*7)*3)) + '</td><td class="momark">' + mostrarNumero((totalM*24*7*4)+((totalC*24*7*4)*1.5)+((totalD*24*7*4)*3))+ '</td></tr>';
-            tabla += '<tr class="" align="right" height="50"><td colspan="5">' + numPlanets + ' {PLANETAS}:   ' + listaPlanetas.replace(/;/g, "  ") + '</td></tr></form>';
-            tabla += '</table><br><br>';
-
-            tabla += '<table class="" width="100%">';
-            tabla += '<tr>'
-            tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec1" href="javascript:void(0)"><img src ="" id="img_sec1">{PLANETAS}</a></td>';
-            tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec2" href="javascript:void(0)"><img src ="" id="img_sec2">{BBCODE}</a></td>';
-            tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec3" href="javascript:void(0)"><img src ="" id="img_sec3">{ALMACENES}</a></td>';
-            tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec4" href="javascript:void(0)"><img src ="" id="img_sec4">{FLOTA}</a></td>';
-            tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec5" href="javascript:void(0)"><img src ="" id="img_sec5">{DEFENSA}</a></td';
-            tabla += '</tr></table>';
-
-            // --- textarea con el BBCode
-            // produccion basica
-            textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
-            textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {COLOR_METAL}" + mostrarNumero((baseM+minaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(((baseD+minaD+taladradorD+classeD)-gastoFusion)*24) + "{/COLOR} {DEUTERIO}{NL}";
-            textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL} , {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR} " + plasmaSTR_deuterio + " {DEUTERIO} {NL}{NL}";
-            textoBB += "{SIZE_GRA}{B}" + getStrSummary("total_dia") + " {COLOR_METAL}" + mostrarNumero((baseM+minaM+plasmaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+plasmaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+plasmaD+taladradorD+classeD)*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
-            textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero(((baseM+minaM+plasmaM+taladradorM+classeM)*24)+((baseC+minaC+plasmaC+taladradorC+classeC)*24)+((baseD+minaD-gastoFusion+plasmaD+taladradorD+classeD)*24)) + "{/COLOR}{NL}";
-            textoBB += "{EN_METAL}: {COLOR_TOTAL2}" + mostrarNumero(((baseM+minaM+plasmaM+taladradorM+classeM)*24)+((baseC+minaC+plasmaC+taladradorC+classeC)*24*3/2)+((baseD+minaD+plasmaD-gastoFusion+taladradorD+classeD)*24*3)) + "{/COLOR}{NL}{NL}";
-            textoBB += "{SIZE_PEQ}{METAL}: " + getStrNiveles(1,sep) + "{/SIZE}{NL}";
-            textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
-            textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
-            textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
-            bbcode_basico = translate(textoBB);
-
-            // produccion completa
-            textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
-            textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {COLOR_METAL}" + mostrarNumero((baseM+minaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+taladradorD+classeD)*24) + "{/COLOR} {DEUTERIO}{NL}";
-            textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR}" + plasmaSTR_deuterio + "{DEUTERIO}{NL}";
-            textoBB += '{GEOLOGO}' + geoSTR + ": {COLOR_METAL}" + mostrarNumero((geoM+ofiM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((geoC+ofiC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((geoD+ofiD)*24) + "{/COLOR} {DEUTERIO}{NL}";
-            textoBB += getStrSummary("amplificador") + ": {COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
-            textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero(totalM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(totalC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(totalD*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
-            textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero((totalM*24)+(totalC*24)+(totalD*24)) + "{/COLOR}{NL}";
-            textoBB += "{EN_METAL}: {COLOR_TOTAL2}" + mostrarNumero((totalM*24)+(totalC*24*3/2)+(totalD*24*3)) + "{/COLOR}{NL}{NL}";
-            textoBB += "{SIZE_PEQ}{METAL}: " + getStrNiveles(1,sep) + "{/SIZE}{NL}";
-            textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
-            textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
-            textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
-            bbcode_completo = translate(textoBB);
-
-
-
-            // produccion basica
-            textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
-            textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero((baseM+minaM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL} , {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR} " + plasmaSTR_deuterio + " {DEUTERIO} {NL}{NL}";
-            textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
-            textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero((baseM+minaM+plasmaM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+plasmaC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+plasmaD)*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
-            textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero(((baseM+minaM+plasmaM)*24)+((baseC+minaC+plasmaC)*24)+((baseD+minaD-gastoFusion+plasmaD)*24)) + "{/COLOR}{NL}";
-            textoBB += "{EN_METAL}: {COLOR_TOTAL2}" + mostrarNumero(((baseM+minaM+plasmaM)*24)+((baseC+minaC+plasmaC)*24*3/2)+((baseD+minaD+plasmaD-gastoFusion)*24*3)) + "{/COLOR}{NL}{NL}";
-            textoBB += "{SIZE_PEQ}{METAL}: " + getStrNiveles(1,sep) + "{/SIZE}{NL}";
-            textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
-            textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
-            textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
-            bbcode_basico2 = translate(textoBB);
-
-            // produccion completa
-            textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
-            textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero((baseM+minaM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR}" + plasmaSTR_deuterio + "{DEUTERIO}{NL}{NL}";
-            textoBB += "Taladradores: {NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero((taladradorM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((taladradorC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((taladradorD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += getStrSummary("recolector") + ":{NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero((classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((classeD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += '{GEOLOGO}' + geoSTR + ":{NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero(geoM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(geoC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(geoD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += getStrSummary("amplificador") + ":{NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
-            textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero(totalM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(totalC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(totalD*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
-            textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero((totalM*24)+(totalC*24)+(totalD*24)) + "{/COLOR}{NL}";
-            textoBB += "{EN_METAL}: {COLOR_TOTAL2}" + mostrarNumero((totalM*24)+(totalC*24*3/2)+(totalD*24*3)) + "{/COLOR}{NL}{NL}";
-            textoBB += "{SIZE_PEQ}{METAL}: " + getStrNiveles(1,sep) + "{/SIZE}{NL}";
-            textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
-            textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
-            textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
-            bbcode_completo2 = translate(textoBB);
-
-
-
-
-            produccionBB = '<p align="center"><br><textarea id="txtBB" name="txtBB" style="background-color:##0000FF;width:600px;height:100px;border: 2px solid #990000;" rows="5" cols="20" onclick="this.focus();this.select()" readonly="readonly">';
-            produccionBB += codificar(bbcode_basico, "phpbb")
-            produccionBB += '</textarea><br>';
-            produccionBB += '<input id="op_p_bas" type="radio" name="tipo_bbc" value="basica" checked="checked">{PRODUCCION_BASICA}</input><br>';
-            produccionBB += '<input id="op_p_comp" type="radio" name="tipo_bbc" value="completa">{PRODUCCION_COMPLETA}</input><br>';
-            produccionBB += '<input id="op_p_bas2" type="radio" name="tipo_bbc" value="basica2">{PRODUCCION_BASICA}</input><br>';
-            produccionBB += '<input id="op_p_comp2" type="radio" name="tipo_bbc" value="completa2">{PRODUCCION_COMPLETA}</input><br></p>';
-            produccionBB += '<br><br><div id="preview" style="margin:25px">' + codificar(bbcode_basico, "html") + '</div>';
-
-
-            var metalD = totalM * 24;
-            var cristalD = totalC * 24;
-            var deuD = totalD * 24;
-
-
-            // --- tabla de produccion de flotas ---
-            var txtTablaFlotas = "";
-            txtTablaFlotas += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
-            txtTablaFlotas += '<tr align="right"><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td></tr>'
-            txtTablaFlotas += '<tr align="right"><td colspan="6" class="text-center"><font color="#FF4000"><p style="font-size:23px"> {PRODUCCION_FLOTA} </p></font><br><br></tr>'
-            txtTablaFlotas += '<tr align="right"><td></td><td>{PRODUCCION}</td><td></td><td></td><td>{EXCEDENTES_DIA}</td><td></td></tr>'
-            txtTablaFlotas += '<tr align="right"><td></td><td>{DIA}</td><td>{SEMANA}</td><td>{METAL}</td><td>{CRISTAL}</td><td>{DEUTERIO}</td></tr>'
-            txtTablaFlotas += generarFilaProduccion("{P_CARGA}", metalD, cristalD, deuD, 2000, 2000, 0, "alt");
-            txtTablaFlotas += generarFilaProduccion("{G_CARGA}", metalD, cristalD, deuD, 6000, 6000, 0);
-            txtTablaFlotas += generarFilaProduccion("{C_LIGERO}", metalD, cristalD, deuD, 3000, 1000, 0, "alt");
-            txtTablaFlotas += generarFilaProduccion("{C_PESADO}", metalD, cristalD, deuD, 6000, 4000, 0);
-            txtTablaFlotas += generarFilaProduccion("{CRUCERO}", metalD, cristalD, deuD, 20000, 7000, 2000, "alt");
-            txtTablaFlotas += generarFilaProduccion("{EXPLORADOR}", metalD, cristalD, deuD, 8000, 15000, 8000);
-            txtTablaFlotas += generarFilaProduccion("{NBATALLA}", metalD, cristalD, deuD, 45000, 15000, 0, "alt");
-            txtTablaFlotas += generarFilaProduccion("{COLONIZADOR}", metalD, cristalD, deuD, 10000, 20000, 10000);
-            txtTablaFlotas += generarFilaProduccion("{RECICLADOR}", metalD, cristalD, deuD, 10000, 6000, 2000, "alt");
-            txtTablaFlotas += generarFilaProduccion("{SONDA}", metalD, cristalD, deuD, 0, 1000,0);
-            txtTablaFlotas += generarFilaProduccion("{BOMBARDERO}", metalD, cristalD, deuD, 50000, 25000, 15000, "alt");
-            txtTablaFlotas += generarFilaProduccion("{DESTRUCTOR}", metalD, cristalD, deuD, 60000, 50000, 15000);
-            txtTablaFlotas += generarFilaProduccion("{SEGADOR}", metalD, cristalD, deuD, 85000, 55000, 20000, "alt");
-            txtTablaFlotas += generarFilaProduccion("{EDLM}", metalD, cristalD, deuD, 5000000, 4000000, 1000000);
-            txtTablaFlotas += generarFilaProduccion("{ACORAZADO}", metalD, cristalD, deuD, 30000, 40000, 15000, "alt");
-            txtTablaFlotas += generarFilaProduccion("{SATELITE}", metalD, cristalD, deuD, 0, 2000, 500);
-            txtTablaFlotas += generarFilaProduccion("{TALADRADOR}", metalD, cristalD, deuD, 2000, 2000, 1000, "alt");
-            txtTablaFlotas += '</table>';
-
-            // --- tabla de produccion de defensas ---
-            var txtTablaDef = "";
-            txtTablaDef += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
-            txtTablaDef += '<tr align="right"><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td></tr>'
-            txtTablaDef += '<tr align="right"><td colspan="6" class="text-center"><font color="#FF4000"><p style="font-size:23px"> {PRODUCCION_DEFENSAS} </p></font><br><br></tr>'
-            txtTablaDef += '<tr align="right"><td></td><td>{PRODUCCION}</td><td></td><td></td><td>{EXCEDENTES_DIA}</td><td></td></tr>'
-            txtTablaDef += '<tr align="right"><td></td><td>{DIA}</td><td>{SEMANA}</td><td>{METAL}</td><td>{CRISTAL}</td><td>{DEUTERIO}</td></tr>'
-            txtTablaDef += generarFilaProduccion("{LANZAMISILES}", metalD, cristalD, deuD, 2000, 0, 0, "alt");
-            txtTablaDef += generarFilaProduccion("{LASER_PEQ}", metalD, cristalD, deuD, 1500, 500, 0);
-            txtTablaDef += generarFilaProduccion("{LASER_GRA}", metalD, cristalD, deuD, 6000, 2000, 0, "alt");
-            txtTablaDef += generarFilaProduccion("{C_GAUS}", metalD, cristalD, deuD, 20000, 15000, 2000);
-            txtTablaDef += generarFilaProduccion("{C_IONICO}", metalD, cristalD, deuD, 5000, 3000, 0, "alt");
-            txtTablaDef += generarFilaProduccion("{C_PLASMA}", metalD, cristalD, deuD, 50000, 50000, 30000);
-            txtTablaDef += generarFilaProduccion("{M_ANTI}", metalD, cristalD, deuD, 8000, 0, 2000, "alt");
-            txtTablaDef += generarFilaProduccion("{M_PLAN}", metalD, cristalD, deuD, 15500, 2500, 10000);
-            txtTablaDef += '</table>';
-
-
-            var txtFinal = '<p align="center"><br><br><br><font size="1"><br><br>';
-            txtFinal += '<a href="https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados" target="_blank">OGame Recursos Ampliados by The Undertaker</a><br>';
-            txtFinal += '[version: ' + SCRIPT_VERSION +  ']<br><br>{TRANSLATE_BY}<BR></font>';
-            txtFinal += '<a class="ogres-clear-data" href="#ogres-clear-data" target="">Reset-Data</a><br></p>';
-
-
-            $(document).on("click", ".ogres-clear-data", function(e){
-                e.preventDefault();
-
-                planets = $(".smallplanet:not(.ogl-summary)");
-                numPlanets = planets.length;
-
-                listaPlanetas = "";
-                for(var i=0; i<planets.length; i++ ) {
-                    cord = $( planets[i] ).find(".planet-koords");
-                    nombre = $( planets[i] ).find(".planet-name");
-
-                    listaPlanetas += cord[0].innerHTML + ";";
-                    options.set(cord[0].innerHTML + "_nombre", nombre[0].innerHTML);
-
+        // getDatosSummary();
+        var summary = getSummaryFromEmpirePage().then(function(data) {
+            var nivel_plasma = data[0][122];
+
+            var planets = getElementsByClass("smallplanet");
+            var numPlanets = data.length;
+
+            if( numPlanets>0 ) {
+                // --- lista de planetas ---
+                var listaPlanetas = "";
+                for (var i=0; i<numPlanets; i++ ) {
+                    // var cord = getElementsByClass("planet-koords", planets[i]);
+                    // var nombre = getElementsByClass("planet-name", planets[i]);
+                    var cord = (data[i].coordinates).replace("[", "").replace("]", "");
+                    var nombre = data[i].name;
+                    listaPlanetas += cord + ";";
+                    options.set(cord + "_nombre", nombre);
                 }
 
                 options.set("lista", listaPlanetas);
-                listaPlanetas = listaPlanetas.split(";");
-                var ls_name = "",
-                    ls_obj = "";
 
-                for( var j=0; j<(listaPlanetas.length - 1); j++ ) {
-                    ls_name = `ogres_${getServer()}_${listaPlanetas[j]}_nombre`;
-                    ls_obj = `ogres_${getServer()}_${listaPlanetas[j]}_objplanet`;
+                // --- calcular total ---
+                var metalTH = 0;
+                var cristalTH = 0;
+                var deuTH = 0;
+                var sep = listaPlanetas.split(";");
 
-                    if( localStorage.getItem(ls_name)==null || localStorage.getItem(ls_obj)==null ) {
-                        ls_name = `ogres_${getServer()}_[${listaPlanetas[j]}]_nombre`;
-                        ls_obj = `ogres_${getServer()}_[${listaPlanetas[j]}]_objplanet`;
+                var plasmaM = plasmaC = plasmaD = 0;
+                var baseM = baseC = baseD = 0;
+                var minaM = minaC = minaD = 0;
+                var geoM = geoC = geoD = 0;
+                var ofiM = ofiC = ofiD = 0;
+                var amplificadoresM = amplificadoresC = amplificadoresD = 0;
+
+                var geoSTR = " (+0%)";
+                var ofiSTR = " (+0%)";
+                var plasmaSTR_metal = " (+" + nivel_plasma + "%)";
+                var plasmaSTR_cristal = " (+" + (Math.round((nivel_plasma*0.66)*100)/100)  + "%)";
+                var plasmaSTR_deuterio = " (+" + (Math.round((nivel_plasma*0.33)*100)/100)  + "%)";
+
+                var gastoFusion = 0;
+
+                var totalM = totalC = totalD = 0;
+
+                var taladradorM = 0;
+                var classeM = 0;
+                var taladradorC = 0;
+                var classeC = 0;
+                var taladradorD = 0;
+                var classeD = 0;
+
+                var clasAliM = 0;
+                var clasAliC = 0;
+                var clasAliD = 0;
+
+                var lifeFormsMetal = 0;
+                var lifeFormsCristal = 0;
+                var lifeFormsDeuterio = 0;
+
+                for(var k = 0; k < sep.length; k++){
+                    if(sep[k].length > 3) {
+                        var planeta = new ObjPlaneta();
+                        planeta.load(options.get(sep[k] + "_objplanet"));
+
+                        baseM += parseInt(planeta.metal_base || 0);
+                        baseC += parseInt(planeta.cristal_base || 0);
+                        baseD += parseInt(planeta.deuterio_base || 0);
+
+                        minaM += parseInt(planeta.metal_produccion_mina || 0);
+                        minaC += parseInt(planeta.cristal_produccion_mina || 0);
+                        minaD += parseInt(planeta.deuterio_produccion_mina || 0);
+
+                        plasmaM += parseFloat(planeta.metal_plasma || 0);
+                        plasmaC += parseFloat(planeta.cristal_plasma || 0) ;
+                        plasmaD += parseFloat(planeta.deuterio_plasma || 0);
+
+                        amplificadoresM += parseFloat(planeta.metal_produccion_amplificador || 0);
+                        amplificadoresC += parseFloat(planeta.cristal_produccion_amplificador || 0);
+                        amplificadoresD += parseFloat(planeta.deuterio_produccion_amplificador || 0);
+
+                        gastoFusion += parseInt(planeta.deuterio_gasto_fusion || 0);
+
+                        taladradorM += parseFloat(planeta.metal_taladrador  || 0);
+                        classeM += parseFloat(planeta.metal_classe  || 0);
+                        taladradorC += parseFloat(planeta.cristal_taladrador  || 0);
+                        classeC += parseFloat(planeta.cristal_classe  || 0);
+                        taladradorD += parseFloat(planeta.deuterio_taladrador  || 0);
+                        classeD += parseFloat(planeta.deuterio_classe  || 0);
+
+                        clasAliM += parseFloat(planeta.metal_clase_alianza  || 0);
+                        clasAliC += parseFloat(planeta.cristal_clase_alianza  || 0);
+                        clasAliD += parseFloat(planeta.deuterio_clase_alianza  || 0);
+
+
+                        if(equipoComandoActivo()) {
+                            geoM += parseFloat(planeta.metal_geologo || 0);
+                            geoC += parseFloat(planeta.cristal_geologo || 0);
+                            geoD += parseFloat(planeta.deuterio_geologo || 0);
+                            ofiM += parseFloat(planeta.metal_oficiales || 0);
+                            ofiC += parseFloat(planeta.cristal_oficiales || 0);
+                            ofiD += parseFloat(planeta.deuterio_oficiales || 0);
+                            geoSTR = " (+10%)";
+                            ofiSTR = " (+2%)";
+                        } else {
+
+                            if(geologoActivo()) {
+                                geoM += parseFloat(planeta.metal_geologo || 0);
+                                geoC += parseFloat(planeta.cristal_geologo || 0);
+                                geoD += parseFloat(planeta.deuterio_geologo || 0);
+                                geoSTR = " (+10%)";
+                            }
+                        }
+
+                        /*Formas de vida*/
+                        lifeFormsMetal += parseFloat( planeta.life_form_metal_bonus || 0 );
+                        lifeFormsCristal += parseFloat( planeta.life_form_cristal_bonus || 0 );
+                        lifeFormsDeuterio += parseFloat( planeta.life_form_deuterio_bonus || 0 );
+
+                        totalM = baseM + minaM + geoM + ofiM + plasmaM + amplificadoresM + taladradorM + classeM + clasAliM + lifeFormsMetal;
+                        totalC = baseC + minaC + geoC + ofiC + plasmaC + amplificadoresC + taladradorC + classeC + clasAliC + lifeFormsCristal;
+                        totalD = baseD + minaD + geoD + ofiD + plasmaD + (amplificadoresD - gastoFusion) + taladradorD + classeD + clasAliD + lifeFormsDeuterio;
                     }
-
-                    localStorage.removeItem(ls_name);
-                    localStorage.removeItem(ls_obj);
                 }
 
-                window.location.reload();
-            });
 
-            var obj;
-
-            // produccion imperial
-            divRecursos.innerHTML = translate(tabla);
-            divRecursos.id = "prod-imp";
-            main.appendChild(divRecursos);
-
-            // recursos por planetas
-            divPorPlanetas.innerHTML = translate(tablaPlanetas);
-            divPorPlanetas.id = "sec_1";
-            divPorPlanetas.style.display = "";
-            divRecursos.appendChild(divPorPlanetas);
-            obj = document.getElementById("mostrar_sec1");
-            addEvent(obj.parentNode, "click", function(){mostrarSeccion(1)});
-            obj = document.getElementById("img_sec1");
-            obj.setAttribute ("src", closeImg);
+                // --- crea la tabla ---
 
 
-            // bb-code
-            divBB.innerHTML = translate(produccionBB);
-            divBB.id = "sec_2";
-            divBB.style.display = "none";
-            divRecursos.appendChild(divBB);
-            obj = document.getElementById("mostrar_sec2");
-            addEvent(obj.parentNode, "click", function(){mostrarSeccion(2)});
-            obj = document.getElementById("img_sec2");
-            obj.setAttribute ("src", openImg);
+                var main = getElementsByClass("mainRS")[0];
 
 
-            // almacenes
-            divAlmacen.innerHTML = translate(tablaAlmacen);
-            divAlmacen.id = "sec_3";
-            divAlmacen.style.display = "none";
-            divRecursos.appendChild(divAlmacen);
-            obj = document.getElementById("mostrar_sec3");
-            addEvent(obj.parentNode, "click", function(){mostrarSeccion(3)});
-            obj = document.getElementById("img_sec3");
-            obj.setAttribute ("src", openImg);
+                var divPorPlanetas = document.createElement('div');
+                var divAlmacen = document.createElement('div');
+                var divRecursos = document.createElement('div');
+                var divBB = document.createElement('div');
+                var divFlotas = document.createElement('div');
+                var divDefensas = document.createElement('div');
+                var divFinal = document.createElement('div');
 
-            // produccion flotas
-            divFlotas.innerHTML = translate(txtTablaFlotas);
-            divFlotas.id = "sec_4";
-            divFlotas.style.display = "none";
-            divRecursos.appendChild(divFlotas);
-            obj = document.getElementById("mostrar_sec4");
-            addEvent(obj.parentNode, "click", function(){mostrarSeccion(4)});
-            obj = document.getElementById("img_sec4");
-            obj.setAttribute ("src", openImg);
+                var tabla = "";
+                var textoBB = "";
 
-            // produccion defensas
-            divDefensas.innerHTML = translate(txtTablaDef);
-            divDefensas.id = "sec_5";
-            divDefensas.style.display = "none";
-            divRecursos.appendChild(divDefensas);
-            obj = document.getElementById("mostrar_sec5");
-            addEvent(obj.parentNode, "click", function(){mostrarSeccion(5)});
-            obj = document.getElementById("img_sec5");
-            obj.setAttribute ("src", openImg);
+                // --- tabla con los recursos diarios por planetas
 
-            // div final (firma y enlace)
-            divFinal.innerHTML = translate(txtFinal);
-            main.appendChild(divFinal);
+                var tablaPlanetas = "";
+                tablaPlanetas += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
+                tablaPlanetas += '<tr><td></td><td></td><td></td><td><br></td></tr>';
+                tablaPlanetas += '<tr><td align="center" class="text-center" colspan="4"><font color="#FF4000"><p style="font-size:20px">';
+                tablaPlanetas += ' {RECURSOS_PLANETAS} </p></font><br></td></tr>';
+                tablaPlanetas += '<tr><td colspan="4"></td></tr>';
+                tablaPlanetas += '<tr align="right"><td></td><td>{METAL}</td><td>{CRISTAL}</td><td>{DEUTERIO}</td></tr>';
 
+                //var sep = listaPlanetas.split(";");
+                for(var k = 0; k < sep.length; k++){
+                    if(sep[k].length > 3) {
+                        var planeta = new ObjPlaneta()
+                        planeta.load(options.get(sep[k] + "_objplanet"));
 
+                        var tr = ((k % 2)==0)?'<tr class="alt">':'<tr>';
+                        tablaPlanetas += tr + '<td class="label">';
+                        tablaPlanetas += (getPosActual() == sep[k]?'<font color="#FF4000"><b>' + planeta.coordenadas + '</b></font>': planeta.coordenadas) + "  " + planeta.nombre;
+                        tablaPlanetas += planeta.getActualizado();
+                        tablaPlanetas += '</td><td class="undermark">' + mostrarNumero(planeta.getTotalM()*24) + getNivelMina(1, sep, k);
+                        tablaPlanetas += '</td><td class="undermark">' + mostrarNumero(planeta.getTotalC()*24) + getNivelMina(2, sep, k);
+                        tablaPlanetas += '</td><td class="undermark">' + mostrarNumero(planeta.getTotalD()*24) + getNivelMina(3, sep, k);
+                        tablaPlanetas += '</td></tr>';
 
-            // detalles de recursos
-            obj = document.getElementById("mostrarDM");
-            addEvent(obj.parentNode, "click", function(){mostrarDetallesRecursos("detalleMetal")});
+                    }
+                }
 
-            obj = document.getElementById("mostrarDC");
-            addEvent(obj.parentNode, "click", function(){mostrarDetallesRecursos("detalleCristal")});
-
-            obj = document.getElementById("mostrarDD");
-            addEvent(obj.parentNode, "click", function(){mostrarDetallesRecursos("detalleDeuterio")});
-
-            obj = document.getElementById("img_detalleMetal");
-            obj.setAttribute ("src", openImg);
-
-            obj = document.getElementById("img_detalleCristal");
-            obj.setAttribute ("src", openImg);
-
-            obj = document.getElementById("img_detalleDeuterio");
-            obj.setAttribute ("src", openImg);
+                tablaPlanetas += '<tr><td colspan="4"></td></tr>';
+                tablaPlanetas += '</table>';
 
 
-            // opciones para el bbcode con la produccion basica o completa
-            obj = document.getElementById("op_p_bas");
-            addEvent(obj, "click", function(){setTxtBBCode(0)});
+                // --- tabla con los almacenes
 
-            obj = document.getElementById("op_p_comp");
-            addEvent(obj, "click", function(){setTxtBBCode(1)});
+                var tablaAlmacen = "";
+                tablaAlmacen += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
+                tablaAlmacen += '<tr><td></td><td></td><td></td><td></td><td></td><td></td><td><br></td></tr>';
+                tablaAlmacen += '<tr><td align="center" class="text-center" colspan="7"><font color="#FF4000"><p style="font-size:20px">{ALMACEN_TIEMPO} </p></font><br></td></tr>';
+                tablaAlmacen += '<tr><td colspan="7"></td></tr>';
+                tablaAlmacen += '<tr align="right"><td></td><td>{METAL}</td><td></td><td>{CRISTAL}</td><td></td><td>{DEUTERIO}</td><td></td></tr>';
 
-            obj = document.getElementById("op_p_bas2");
-            addEvent(obj, "click", function(){setTxtBBCode(2)});
+                for(var k = 0; k < sep.length; k++){
+                    if(sep[k].length > 3) {
+                        var planeta = new ObjPlaneta()
+                        planeta.load(options.get(sep[k] + "_objplanet"));
 
-            obj = document.getElementById("op_p_comp2");
-            addEvent(obj, "click", function(){setTxtBBCode(3)});
+                        var tr = ((k % 2)==0)?'<tr class="alt" align="right">':'<tr align="right">';
+
+                        tablaAlmacen += tr + '<td class="label">';
+                        tablaAlmacen += (getPosActual() == sep[k]?'<font color="#FF4000"><b>' + planeta.coordenadas + '</b></font>': planeta.coordenadas) + "  " + planeta.nombre;
+                        tablaAlmacen += planeta.getActualizado() + '</td><td class="undermark">';
+                        tablaAlmacen += A(planeta.almacen_metal) + '</td><td><p align="center">' + getTiempoLlenado(planeta.getTotalM()*24,planeta.almacen_metal);
+                        tablaAlmacen += '</p></td><td class="undermark">' + A(planeta.almacen_cristal) + '</td><td><p align="center">';
+                        tablaAlmacen += getTiempoLlenado(planeta.getTotalC()*24,planeta.almacen_cristal) + '</p></td><td class="undermark">' + A(planeta.almacen_deuterio);
+                        tablaAlmacen += '</td><td><p align="center">' + getTiempoLlenado(planeta.getTotalD()*24, planeta.almacen_deuterio) + '</p></td></tr>';
+                    }
+                }
+                tablaAlmacen += '<tr><td colspan="7"></td></tr>';
+                tablaAlmacen += '</table>';
 
 
-        }
+                // --- tabla con los recursos diarios/semanales/mensuales
+
+                tabla += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
+                tabla += '<tr height="50" style="display:none;"><td width="28%"></td><td width="18%"></td><td width="18%"></td><td width="18%"></td><td width="18%"></td></tr>';
+                tabla += '<tr><td align="center" class="text-center" colspan="5"><font color="#FF4000"><p style="font-size:23px"> {PRODUCCION_IMPERIAL} ' + getNombreJugador() + ' </p></font></td></tr>';
+                tabla += '<tr><td colspan="5"></td></tr>';
+                tabla += '<tr align="right"><td></td><td>{HORA}</td><td>{DIARIA}</td><td>{SEMANAL}</td><td>{MENSUAL}</td></tr>';
+
+                var tipo = "Metal";
+                tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDM" href="javascript:void(0)"><img src ="" id="img_detalleMetal"> {METAL}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalM) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24*7) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalM*24*7*4) + '</b></td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_1" style="display:none"><td class="label">' + getStrSummary("basico") + '</td><td class="">' + mostrarNumero(baseM) + '</td><td class="">' + mostrarNumero(baseM*24) + '</td><td class="">' + mostrarNumero(baseM*24*7) + '</td><td class="">' + mostrarNumero(baseM*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_2" style="display:none"><td class="label">' + getStrSummary("metal") + '</td><td class="">' + mostrarNumero(minaM) + '</td><td class="">' + mostrarNumero(minaM*24) + '</td><td class="">' + mostrarNumero(minaM*24*7) + '</td><td class="">' + mostrarNumero(minaM*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_3" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_metal + '</td><td class="">' + mostrarNumero(plasmaM) + '</td><td class="">' + mostrarNumero(plasmaM*24) + '</td><td class="">' + mostrarNumero(plasmaM*24*7) + '</td><td class="">' + mostrarNumero(plasmaM*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoM) + '</td><td class="">' + mostrarNumero(geoM*24) + '</td><td class="">' + mostrarNumero(geoM*24*7) + '</td><td class="">' + mostrarNumero(geoM*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_5" style="display:none"><td class="label">{EQUIPO_COMANDO}' + ofiSTR + '</td><td class="">' + mostrarNumero(ofiM) + '</td><td class="">' + mostrarNumero(ofiM*24) + '</td><td class="">' + mostrarNumero(ofiM*24*7) + '</td><td class="">' + mostrarNumero(ofiM*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_6" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresM) + '</td><td class="">' + mostrarNumero(amplificadoresM*24) + '</td><td class="">' + mostrarNumero(amplificadoresM*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresM*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorM) + '</td><td class="">' + mostrarNumero(taladradorM*24) + '</td><td class="">' + mostrarNumero(taladradorM*24*7) + '</td><td class="">' + mostrarNumero(taladradorM*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeM) + '</td><td class="">' + mostrarNumero(classeM*24) + '</td><td class="">' + mostrarNumero(classeM*24*7) + '</td><td class="">' + mostrarNumero(classeM*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliM) + '</td><td class="">' + mostrarNumero(clasAliM*24) + '</td><td class="">' + mostrarNumero(clasAliM*24*7) + '</td><td class="">' + mostrarNumero(clasAliM*24*7*4) + '</td></tr>';
+
+                var detail_id = 10;
+                if( $("#lifeform").length>0 ) {
+                    tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label">' + getStrSummary("lifeforms") + '</td><td class="">' + mostrarNumero(lifeFormsMetal) + '</td><td class="">' + mostrarNumero(lifeFormsMetal*24) + '</td><td class="">' + mostrarNumero(lifeFormsMetal*24*7) + '</td><td class="">' + mostrarNumero(lifeFormsMetal*24*7*4) + '</td></tr>';
+                    detail_id = 11;
+                }
+
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label"></td><td class=""></td><td class=""></td><td class=""></td><td class=""></td></tr>';
+
+                tipo = "Cristal";
+                tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDC" href="javascript:void(0)"><img src ="" id="img_detalleCristal"> {CRISTAL}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalC) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24*7) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalC*24*7*4) + '</b></td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_1" style="display:none"><td class="label">' + getStrSummary("basico") + '</td><td class="">' + mostrarNumero(baseC) + '</td><td class="">' + mostrarNumero(baseC*24) + '</td><td class="">' + mostrarNumero(baseC*24*7) + '</td><td class="">' + mostrarNumero(baseC*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_2" style="display:none"><td class="label">' + getStrSummary("cristal") + '</td><td class="">' + mostrarNumero(minaC) + '</td><td class="">' + mostrarNumero(minaC*24) + '</td><td class="">' + mostrarNumero(minaC*24*7) + '</td><td class="">' + mostrarNumero(minaC*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_3" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_cristal + '</td><td class="">' + mostrarNumero(plasmaC) + '</td><td class="">' + mostrarNumero(plasmaC*24) + '</td><td class="">' + mostrarNumero(plasmaC*24*7) + '</td><td class="">' + mostrarNumero(plasmaC*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoC) + '</td><td class="">' + mostrarNumero(geoC*24) + '</td><td class="">' + mostrarNumero(geoC*24*7) + '</td><td class="">' + mostrarNumero(geoC*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_5" style="display:none"><td class="label">{EQUIPO_COMANDO}' + ofiSTR + '</td><td class="">' + mostrarNumero(ofiC) + '</td><td class="">' + mostrarNumero(ofiC*24) + '</td><td class="">' + mostrarNumero(ofiC*24*7) + '</td><td class="">' + mostrarNumero(ofiC*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_6" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresC) + '</td><td class="">' + mostrarNumero(amplificadoresC*24) + '</td><td class="">' + mostrarNumero(amplificadoresC*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresC*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorC) + '</td><td class="">' + mostrarNumero(taladradorC*24) + '</td><td class="">' + mostrarNumero(taladradorC*24*7) + '</td><td class="">' + mostrarNumero(taladradorC*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeC) + '</td><td class="">' + mostrarNumero(classeC*24) + '</td><td class="">' + mostrarNumero(classeC*24*7) + '</td><td class="">' + mostrarNumero(classeC*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliC) + '</td><td class="">' + mostrarNumero(clasAliC*24) + '</td><td class="">' + mostrarNumero(clasAliC*24*7) + '</td><td class="">' + mostrarNumero(clasAliC*24*7*4) + '</td></tr>';
+
+                detail_id = 10;
+                if( $("#lifeform").length>0 ) {
+                    tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label">' + getStrSummary("lifeforms") + '</td><td class="">' + mostrarNumero(lifeFormsCristal) + '</td><td class="">' + mostrarNumero(lifeFormsCristal*24) + '</td><td class="">' + mostrarNumero(lifeFormsCristal*24*7) + '</td><td class="">' + mostrarNumero(lifeFormsCristal*24*7*4) + '</td></tr>';
+                    detail_id = 11;
+                }
+
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label"></td><td class=""></td><td class=""></td><td class=""></td><td class=""></td></tr>';
+
+                tipo = "Deuterio";
+                tabla += '<tr class="alt" align="right"><td class="label"><b><a id="mostrarDD" href="javascript:void(0)"><img src ="" id="img_detalleDeuterio"> {DEUTERIO}</a></b></td><td class="undermark"><b>' + mostrarNumero(totalD) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24*7) + '</b></td><td class="undermark"><b>' + mostrarNumero(totalD*24*7*4) + '</b></td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_1" style="display:none"><td class="label">' + getStrSummary("deuterio") + '</td><td class="">' + mostrarNumero(minaD) + '</td><td class="">' + mostrarNumero(minaD*24) + '</td><td class="">' + mostrarNumero(minaD*24*7) + '</td><td class="">' + mostrarNumero(minaD*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_2" style="display:none"><td class="label">' + getStrSummary("plasma") + ' ' + plasmaSTR_deuterio + '</td><td class="">' + mostrarNumero(plasmaD) + '</td><td class="">' + mostrarNumero(plasmaD*24) + '</td><td class="">' + mostrarNumero(plasmaD*24*7) + '</td><td class="">' + mostrarNumero(plasmaD*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_3" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoD) + '</td><td class="">' + mostrarNumero(geoD*24) + '</td><td class="">' + mostrarNumero(geoD*24*7) + '</td><td class="">' + mostrarNumero(geoD*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_4" style="display:none"><td class="label">{EQUIPO_COMANDO}' + ofiSTR + '</td><td class="">' + mostrarNumero(ofiD) + '</td><td class="">' + mostrarNumero(ofiD*24) + '</td><td class="">' + mostrarNumero(ofiD*24*7) + '</td><td class="">' + mostrarNumero(ofiD*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_5" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresD) + '</td><td class="">' + mostrarNumero(amplificadoresD*24) + '</td><td class="">' + mostrarNumero(amplificadoresD*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresD*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_6" style="display:none"><td class="label">' + getStrSummary("fusion") + '</td><td class="">' + mostrarNumero(gastoFusion*-1) + '</td><td class="">' + mostrarNumero(gastoFusion*-24) + '</td><td class="">' + mostrarNumero(gastoFusion*-168) + '</td><td class="">' + mostrarNumero(gastoFusion*-720) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorD) + '</td><td class="">' + mostrarNumero(taladradorD*24) + '</td><td class="">' + mostrarNumero(taladradorD*24*7) + '</td><td class="">' + mostrarNumero(taladradorD*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeD) + '</td><td class="">' + mostrarNumero(classeD*24) + '</td><td class="">' + mostrarNumero(classeD*24*7) + '</td><td class="">' + mostrarNumero(classeD*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliD) + '</td><td class="">' + mostrarNumero(clasAliD*24) + '</td><td class="">' + mostrarNumero(clasAliD*24*7) + '</td><td class="">' + mostrarNumero(clasAliD*24*7*4) + '</td></tr>';
+
+                detail_id = 10;
+                if( $("#lifeform").length>0 ) {
+                    tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label">' + getStrSummary("lifeforms") + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio) + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio*24) + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio*24*7) + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio*24*7*4) + '</td></tr>';
+                    detail_id = 11;
+                }
+
+                tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label"></td><td class=""></td><td class=""></td><td class=""></td><td class=""></td></tr>';
+
+                tabla += '<tr><td colspan="5"><br></td></tr>';
+                tabla += '<tr class="" align="right"><td class="label">{TOTAL}</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)) + '</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)*24) + '</td><td class="nomark">' + mostrarNumero((totalM+totalC+totalD)*24*7) + '</td><td class="momark">' + mostrarNumero((totalM+totalC+totalD)*24*7*4) + '</td></tr>';
+                tabla += '<tr class="" align="right"><td class="label">{EN_METAL}</td><td class="nomark">' + mostrarNumero((totalM)+((totalC)*1.5)+((totalD)*3)) + '</td><td class="nomark">' + mostrarNumero((totalM*24)+((totalC*24)*1.5)+((totalD*24)*3)) + '</td><td class="nomark">' + mostrarNumero((totalM*24*7)+((totalC*24*7)*1.5)+((totalD*24*7)*3)) + '</td><td class="momark">' + mostrarNumero((totalM*24*7*4)+((totalC*24*7*4)*1.5)+((totalD*24*7*4)*3))+ '</td></tr>';
+                tabla += '<tr class="" align="right" height="50"><td colspan="5">' + numPlanets + ' {PLANETAS}:   ' + listaPlanetas.replace(/;/g, "  ") + '</td></tr></form>';
+                tabla += '</table><br><br>';
+
+                tabla += '<table class="" width="100%">';
+                tabla += '<tr>'
+                tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec1" href="javascript:void(0)"><img src ="" id="img_sec1">{PLANETAS}</a></td>';
+                tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec2" href="javascript:void(0)"><img src ="" id="img_sec2">{BBCODE}</a></td>';
+                tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec3" href="javascript:void(0)"><img src ="" id="img_sec3">{ALMACENES}</a></td>';
+                tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec4" href="javascript:void(0)"><img src ="" id="img_sec4">{FLOTA}</a></td>';
+                tabla += '<td width="20%" style="text-align:center;" bgcolor="#240B3B"><a style="color: #FFFFFF; font-size: 10pt" id="mostrar_sec5" href="javascript:void(0)"><img src ="" id="img_sec5">{DEFENSA}</a></td';
+                tabla += '</tr></table>';
+
+                // --- textarea con el BBCode
+                // produccion basica
+                textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
+                textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {COLOR_METAL}" + mostrarNumero((baseM+minaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(((baseD+minaD+taladradorD+classeD)-gastoFusion)*24) + "{/COLOR} {DEUTERIO}{NL}";
+                textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL} , {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR} " + plasmaSTR_deuterio + " {DEUTERIO} {NL}{NL}";
+                textoBB += "{SIZE_GRA}{B}" + getStrSummary("total_dia") + " {COLOR_METAL}" + mostrarNumero((baseM+minaM+plasmaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+plasmaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+plasmaD+taladradorD+classeD)*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
+                textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero(((baseM+minaM+plasmaM+taladradorM+classeM)*24)+((baseC+minaC+plasmaC+taladradorC+classeC)*24)+((baseD+minaD-gastoFusion+plasmaD+taladradorD+classeD)*24)) + "{/COLOR}{NL}";
+                textoBB += "{EN_METAL}: {COLOR_TOTAL2}" + mostrarNumero(((baseM+minaM+plasmaM+taladradorM+classeM)*24)+((baseC+minaC+plasmaC+taladradorC+classeC)*24*3/2)+((baseD+minaD+plasmaD-gastoFusion+taladradorD+classeD)*24*3)) + "{/COLOR}{NL}{NL}";
+                textoBB += "{SIZE_PEQ}{METAL}: " + getStrNiveles(1,sep) + "{/SIZE}{NL}";
+                textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
+                textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
+                textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
+                bbcode_basico = translate(textoBB);
+
+                // produccion completa
+                textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
+                textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {COLOR_METAL}" + mostrarNumero((baseM+minaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+taladradorD+classeD)*24) + "{/COLOR} {DEUTERIO}{NL}";
+                textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR}" + plasmaSTR_deuterio + "{DEUTERIO}{NL}";
+                textoBB += '{GEOLOGO}' + geoSTR + ": {COLOR_METAL}" + mostrarNumero((geoM+ofiM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((geoC+ofiC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((geoD+ofiD)*24) + "{/COLOR} {DEUTERIO}{NL}";
+                textoBB += getStrSummary("amplificador") + ": {COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+                textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
+                textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero(totalM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(totalC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(totalD*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
+                textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero((totalM*24)+(totalC*24)+(totalD*24)) + "{/COLOR}{NL}";
+                textoBB += "{EN_METAL}: {COLOR_TOTAL2}" + mostrarNumero((totalM*24)+(totalC*24*3/2)+(totalD*24*3)) + "{/COLOR}{NL}{NL}";
+                textoBB += "{SIZE_PEQ}{METAL}: " + getStrNiveles(1,sep) + "{/SIZE}{NL}";
+                textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
+                textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
+                textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
+                bbcode_completo = translate(textoBB);
+
+
+
+                // produccion basica
+                textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
+                textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero((baseM+minaM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+                textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL} , {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR} " + plasmaSTR_deuterio + " {DEUTERIO} {NL}{NL}";
+                textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
+                textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero((baseM+minaM+plasmaM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+plasmaC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+plasmaD)*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
+                textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero(((baseM+minaM+plasmaM)*24)+((baseC+minaC+plasmaC)*24)+((baseD+minaD-gastoFusion+plasmaD)*24)) + "{/COLOR}{NL}";
+                textoBB += "{EN_METAL}: {COLOR_TOTAL2}" + mostrarNumero(((baseM+minaM+plasmaM)*24)+((baseC+minaC+plasmaC)*24*3/2)+((baseD+minaD+plasmaD-gastoFusion)*24*3)) + "{/COLOR}{NL}{NL}";
+                textoBB += "{SIZE_PEQ}{METAL}: " + getStrNiveles(1,sep) + "{/SIZE}{NL}";
+                textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
+                textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
+                textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
+                bbcode_basico2 = translate(textoBB);
+
+                // produccion completa
+                textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
+                textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero((baseM+minaM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+                textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR}" + plasmaSTR_deuterio + "{DEUTERIO}{NL}{NL}";
+                textoBB += "Taladradores: {NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero((taladradorM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((taladradorC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((taladradorD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+                textoBB += getStrSummary("recolector") + ":{NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero((classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((classeD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+                textoBB += '{GEOLOGO}' + geoSTR + ":{NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero(geoM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(geoC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(geoD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+                textoBB += getStrSummary("amplificador") + ":{NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+                textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
+                textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero(totalM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(totalC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(totalD*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
+                textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero((totalM*24)+(totalC*24)+(totalD*24)) + "{/COLOR}{NL}";
+                textoBB += "{EN_METAL}: {COLOR_TOTAL2}" + mostrarNumero((totalM*24)+(totalC*24*3/2)+(totalD*24*3)) + "{/COLOR}{NL}{NL}";
+                textoBB += "{SIZE_PEQ}{METAL}: " + getStrNiveles(1,sep) + "{/SIZE}{NL}";
+                textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
+                textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
+                textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
+                bbcode_completo2 = translate(textoBB);
+
+
+
+
+                produccionBB = '<p align="center"><br><textarea id="txtBB" name="txtBB" style="background-color:##0000FF;width:600px;height:100px;border: 2px solid #990000;" rows="5" cols="20" onclick="this.focus();this.select()" readonly="readonly">';
+                produccionBB += codificar(bbcode_basico, "phpbb")
+                produccionBB += '</textarea><br>';
+                produccionBB += '<input id="op_p_bas" type="radio" name="tipo_bbc" value="basica" checked="checked">{PRODUCCION_BASICA}</input><br>';
+                produccionBB += '<input id="op_p_comp" type="radio" name="tipo_bbc" value="completa">{PRODUCCION_COMPLETA}</input><br>';
+                produccionBB += '<input id="op_p_bas2" type="radio" name="tipo_bbc" value="basica2">{PRODUCCION_BASICA}</input><br>';
+                produccionBB += '<input id="op_p_comp2" type="radio" name="tipo_bbc" value="completa2">{PRODUCCION_COMPLETA}</input><br></p>';
+                produccionBB += '<br><br><div id="preview" style="margin:25px">' + codificar(bbcode_basico, "html") + '</div>';
+
+
+                var metalD = totalM * 24;
+                var cristalD = totalC * 24;
+                var deuD = totalD * 24;
+
+
+                // --- tabla de produccion de flotas ---
+                var txtTablaFlotas = "";
+                txtTablaFlotas += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
+                txtTablaFlotas += '<tr align="right"><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td></tr>'
+                txtTablaFlotas += '<tr align="right"><td colspan="6" class="text-center"><font color="#FF4000"><p style="font-size:23px"> {PRODUCCION_FLOTA} </p></font><br><br></tr>'
+                txtTablaFlotas += '<tr align="right"><td></td><td>{PRODUCCION}</td><td></td><td></td><td>{EXCEDENTES_DIA}</td><td></td></tr>'
+                txtTablaFlotas += '<tr align="right"><td></td><td>{DIA}</td><td>{SEMANA}</td><td>{METAL}</td><td>{CRISTAL}</td><td>{DEUTERIO}</td></tr>'
+                txtTablaFlotas += generarFilaProduccion("{P_CARGA}", metalD, cristalD, deuD, 2000, 2000, 0, "alt");
+                txtTablaFlotas += generarFilaProduccion("{G_CARGA}", metalD, cristalD, deuD, 6000, 6000, 0);
+                txtTablaFlotas += generarFilaProduccion("{C_LIGERO}", metalD, cristalD, deuD, 3000, 1000, 0, "alt");
+                txtTablaFlotas += generarFilaProduccion("{C_PESADO}", metalD, cristalD, deuD, 6000, 4000, 0);
+                txtTablaFlotas += generarFilaProduccion("{CRUCERO}", metalD, cristalD, deuD, 20000, 7000, 2000, "alt");
+                txtTablaFlotas += generarFilaProduccion("{EXPLORADOR}", metalD, cristalD, deuD, 8000, 15000, 8000);
+                txtTablaFlotas += generarFilaProduccion("{NBATALLA}", metalD, cristalD, deuD, 45000, 15000, 0, "alt");
+                txtTablaFlotas += generarFilaProduccion("{COLONIZADOR}", metalD, cristalD, deuD, 10000, 20000, 10000);
+                txtTablaFlotas += generarFilaProduccion("{RECICLADOR}", metalD, cristalD, deuD, 10000, 6000, 2000, "alt");
+                txtTablaFlotas += generarFilaProduccion("{SONDA}", metalD, cristalD, deuD, 0, 1000,0);
+                txtTablaFlotas += generarFilaProduccion("{BOMBARDERO}", metalD, cristalD, deuD, 50000, 25000, 15000, "alt");
+                txtTablaFlotas += generarFilaProduccion("{DESTRUCTOR}", metalD, cristalD, deuD, 60000, 50000, 15000);
+                txtTablaFlotas += generarFilaProduccion("{SEGADOR}", metalD, cristalD, deuD, 85000, 55000, 20000, "alt");
+                txtTablaFlotas += generarFilaProduccion("{EDLM}", metalD, cristalD, deuD, 5000000, 4000000, 1000000);
+                txtTablaFlotas += generarFilaProduccion("{ACORAZADO}", metalD, cristalD, deuD, 30000, 40000, 15000, "alt");
+                txtTablaFlotas += generarFilaProduccion("{SATELITE}", metalD, cristalD, deuD, 0, 2000, 500);
+                txtTablaFlotas += generarFilaProduccion("{TALADRADOR}", metalD, cristalD, deuD, 2000, 2000, 1000, "alt");
+                txtTablaFlotas += '</table>';
+
+                // --- tabla de produccion de defensas ---
+                var txtTablaDef = "";
+                txtTablaDef += '<table cellspacing="0" cellpadding="0" style="margin-top: 0px;" width="100%">';
+                txtTablaDef += '<tr align="right"><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td><td style="width: 16%"></td></tr>'
+                txtTablaDef += '<tr align="right"><td colspan="6" class="text-center"><font color="#FF4000"><p style="font-size:23px"> {PRODUCCION_DEFENSAS} </p></font><br><br></tr>'
+                txtTablaDef += '<tr align="right"><td></td><td>{PRODUCCION}</td><td></td><td></td><td>{EXCEDENTES_DIA}</td><td></td></tr>'
+                txtTablaDef += '<tr align="right"><td></td><td>{DIA}</td><td>{SEMANA}</td><td>{METAL}</td><td>{CRISTAL}</td><td>{DEUTERIO}</td></tr>'
+                txtTablaDef += generarFilaProduccion("{LANZAMISILES}", metalD, cristalD, deuD, 2000, 0, 0, "alt");
+                txtTablaDef += generarFilaProduccion("{LASER_PEQ}", metalD, cristalD, deuD, 1500, 500, 0);
+                txtTablaDef += generarFilaProduccion("{LASER_GRA}", metalD, cristalD, deuD, 6000, 2000, 0, "alt");
+                txtTablaDef += generarFilaProduccion("{C_GAUS}", metalD, cristalD, deuD, 20000, 15000, 2000);
+                txtTablaDef += generarFilaProduccion("{C_IONICO}", metalD, cristalD, deuD, 5000, 3000, 0, "alt");
+                txtTablaDef += generarFilaProduccion("{C_PLASMA}", metalD, cristalD, deuD, 50000, 50000, 30000);
+                txtTablaDef += generarFilaProduccion("{M_ANTI}", metalD, cristalD, deuD, 8000, 0, 2000, "alt");
+                txtTablaDef += generarFilaProduccion("{M_PLAN}", metalD, cristalD, deuD, 15500, 2500, 10000);
+                txtTablaDef += '</table>';
+
+
+                var txtFinal = '<p align="center"><br><br><br><font size="1"><br><br>';
+                txtFinal += '<a href="https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados" target="_blank">OGame Recursos Ampliados by The Undertaker</a><br>';
+                txtFinal += '[version: ' + SCRIPT_VERSION +  ']<br><br>{TRANSLATE_BY}<BR></font>';
+                txtFinal += '<a class="ogres-clear-data" href="#ogres-clear-data" target="">Reset-Data</a><br></p>';
+
+
+                $(document).on("click", ".ogres-clear-data", function(e){
+                    e.preventDefault();
+
+                    planets = $(".smallplanet:not(.ogl-summary)");
+                    numPlanets = planets.length;
+
+                    listaPlanetas = "";
+                    for(var i=0; i<planets.length; i++ ) {
+                        cord = $( planets[i] ).find(".planet-koords");
+                        nombre = $( planets[i] ).find(".planet-name");
+
+                        listaPlanetas += cord[0].innerHTML + ";";
+                        options.set(cord[0].innerHTML + "_nombre", nombre[0].innerHTML);
+
+                    }
+
+                    options.set("lista", listaPlanetas);
+                    listaPlanetas = listaPlanetas.split(";");
+                    var ls_name = "",
+                        ls_obj = "";
+
+                    for( var j=0; j<(listaPlanetas.length - 1); j++ ) {
+                        ls_name = `ogres_${getServer()}_${listaPlanetas[j]}_nombre`;
+                        ls_obj = `ogres_${getServer()}_${listaPlanetas[j]}_objplanet`;
+
+                        if( localStorage.getItem(ls_name)==null || localStorage.getItem(ls_obj)==null ) {
+                            ls_name = `ogres_${getServer()}_[${listaPlanetas[j]}]_nombre`;
+                            ls_obj = `ogres_${getServer()}_[${listaPlanetas[j]}]_objplanet`;
+                        }
+
+                        localStorage.removeItem(ls_name);
+                        localStorage.removeItem(ls_obj);
+                    }
+
+                    window.location.reload();
+                });
+
+                var obj;
+
+                // produccion imperial
+                divRecursos.innerHTML = translate(tabla);
+                divRecursos.id = "prod-imp";
+                main.appendChild(divRecursos);
+
+                // recursos por planetas
+                divPorPlanetas.innerHTML = translate(tablaPlanetas);
+                divPorPlanetas.id = "sec_1";
+                divPorPlanetas.style.display = "";
+                divRecursos.appendChild(divPorPlanetas);
+                obj = document.getElementById("mostrar_sec1");
+                addEvent(obj.parentNode, "click", function(){mostrarSeccion(1)});
+                obj = document.getElementById("img_sec1");
+                obj.setAttribute ("src", closeImg);
+
+
+                // bb-code
+                divBB.innerHTML = translate(produccionBB);
+                divBB.id = "sec_2";
+                divBB.style.display = "none";
+                divRecursos.appendChild(divBB);
+                obj = document.getElementById("mostrar_sec2");
+                addEvent(obj.parentNode, "click", function(){mostrarSeccion(2)});
+                obj = document.getElementById("img_sec2");
+                obj.setAttribute ("src", openImg);
+
+
+                // almacenes
+                divAlmacen.innerHTML = translate(tablaAlmacen);
+                divAlmacen.id = "sec_3";
+                divAlmacen.style.display = "none";
+                divRecursos.appendChild(divAlmacen);
+                obj = document.getElementById("mostrar_sec3");
+                addEvent(obj.parentNode, "click", function(){mostrarSeccion(3)});
+                obj = document.getElementById("img_sec3");
+                obj.setAttribute ("src", openImg);
+
+                // produccion flotas
+                divFlotas.innerHTML = translate(txtTablaFlotas);
+                divFlotas.id = "sec_4";
+                divFlotas.style.display = "none";
+                divRecursos.appendChild(divFlotas);
+                obj = document.getElementById("mostrar_sec4");
+                addEvent(obj.parentNode, "click", function(){mostrarSeccion(4)});
+                obj = document.getElementById("img_sec4");
+                obj.setAttribute ("src", openImg);
+
+                // produccion defensas
+                divDefensas.innerHTML = translate(txtTablaDef);
+                divDefensas.id = "sec_5";
+                divDefensas.style.display = "none";
+                divRecursos.appendChild(divDefensas);
+                obj = document.getElementById("mostrar_sec5");
+                addEvent(obj.parentNode, "click", function(){mostrarSeccion(5)});
+                obj = document.getElementById("img_sec5");
+                obj.setAttribute ("src", openImg);
+
+                // div final (firma y enlace)
+                divFinal.innerHTML = translate(txtFinal);
+                main.appendChild(divFinal);
+
+
+
+                // detalles de recursos
+                obj = document.getElementById("mostrarDM");
+                addEvent(obj.parentNode, "click", function(){mostrarDetallesRecursos("detalleMetal")});
+
+                obj = document.getElementById("mostrarDC");
+                addEvent(obj.parentNode, "click", function(){mostrarDetallesRecursos("detalleCristal")});
+
+                obj = document.getElementById("mostrarDD");
+                addEvent(obj.parentNode, "click", function(){mostrarDetallesRecursos("detalleDeuterio")});
+
+                obj = document.getElementById("img_detalleMetal");
+                obj.setAttribute ("src", openImg);
+
+                obj = document.getElementById("img_detalleCristal");
+                obj.setAttribute ("src", openImg);
+
+                obj = document.getElementById("img_detalleDeuterio");
+                obj.setAttribute ("src", openImg);
+
+
+                // opciones para el bbcode con la produccion basica o completa
+                obj = document.getElementById("op_p_bas");
+                addEvent(obj, "click", function(){setTxtBBCode(0)});
+
+                obj = document.getElementById("op_p_comp");
+                addEvent(obj, "click", function(){setTxtBBCode(1)});
+
+                obj = document.getElementById("op_p_bas2");
+                addEvent(obj, "click", function(){setTxtBBCode(2)});
+
+                obj = document.getElementById("op_p_comp2");
+                addEvent(obj, "click", function(){setTxtBBCode(3)});
+            }
+        });
+
     }
 
     /*Extra function*/
