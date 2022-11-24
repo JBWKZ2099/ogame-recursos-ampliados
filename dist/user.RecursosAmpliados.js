@@ -2634,66 +2634,17 @@
                     var planeta = new ObjPlaneta();
                     planeta.load(options.get(sep[k] + "_objplanet"));
 
-                    baseM += parseInt(planeta.metal_base || 0);
-                    baseC += parseInt(planeta.cristal_base || 0);
-                    baseD += parseInt(planeta.deuterio_base || 0);
-
-                    minaM += parseInt(planeta.metal_produccion_mina || 0);
-                    minaC += parseInt(planeta.cristal_produccion_mina || 0);
-                    minaD += parseInt(planeta.deuterio_produccion_mina || 0);
-
-                    plasmaM += parseFloat(planeta.metal_plasma || 0);
-                    plasmaC += parseFloat(planeta.cristal_plasma || 0) ;
-                    plasmaD += parseFloat(planeta.deuterio_plasma || 0);
-
-                    amplificadoresM += parseFloat(planeta.metal_produccion_amplificador || 0);
-                    amplificadoresC += parseFloat(planeta.cristal_produccion_amplificador || 0);
-                    amplificadoresD += parseFloat(planeta.deuterio_produccion_amplificador || 0);
-
-                    gastoFusion += parseInt(planeta.deuterio_gasto_fusion || 0);
-
-                    if( gastoFusion<0 )
-                        gastoFusion = gastoFusion*-1;
-
-                    taladradorM += parseFloat(planeta.metal_taladrador  || 0);
-                    classeM += parseFloat(planeta.metal_classe  || 0);
-                    taladradorC += parseFloat(planeta.cristal_taladrador  || 0);
-                    classeC += parseFloat(planeta.cristal_classe  || 0);
-                    taladradorD += parseFloat(planeta.deuterio_taladrador  || 0);
-                    classeD += parseFloat(planeta.deuterio_classe  || 0);
-
-                    clasAliM += parseFloat(planeta.metal_clase_alianza  || 0);
-                    clasAliC += parseFloat(planeta.cristal_clase_alianza  || 0);
-                    clasAliD += parseFloat(planeta.deuterio_clase_alianza  || 0);
-
-
                     if(equipoComandoActivo()) {
-                        geoM += parseFloat(planeta.metal_geologo || 0);
-                        geoC += parseFloat(planeta.cristal_geologo || 0);
-                        geoD += parseFloat(planeta.deuterio_geologo || 0);
-                        ofiM += parseFloat(planeta.metal_oficiales || 0);
-                        ofiC += parseFloat(planeta.cristal_oficiales || 0);
-                        ofiD += parseFloat(planeta.deuterio_oficiales || 0);
                         geoSTR = " (+10%)";
                         ofiSTR = " (+2%)";
                     } else {
-
-                        if(geologoActivo()) {
-                            geoM += parseFloat(planeta.metal_geologo || 0);
-                            geoC += parseFloat(planeta.cristal_geologo || 0);
-                            geoD += parseFloat(planeta.deuterio_geologo || 0);
+                        if( geologoActivo() )
                             geoSTR = " (+10%)";
-                        }
                     }
 
-                    /*Formas de vida*/
-                    lifeFormsMetal += parseFloat( planeta.life_form_metal_bonus || 0 );
-                    lifeFormsCristal += parseFloat( planeta.life_form_cristal_bonus || 0 );
-                    lifeFormsDeuterio += parseFloat( planeta.life_form_deuterio_bonus || 0 );
-
-                    totalM = baseM + minaM + geoM + ofiM + plasmaM + amplificadoresM + taladradorM + classeM + clasAliM + lifeFormsMetal;
-                    totalC = baseC + minaC + geoC + ofiC + plasmaC + amplificadoresC + taladradorC + classeC + clasAliC + lifeFormsCristal;
-                    totalD = baseD + minaD + geoD + ofiD + plasmaD + (amplificadoresD - gastoFusion) + taladradorD + classeD + clasAliD + lifeFormsDeuterio;
+                    totalM += planeta.getTotalM();
+                    totalC += planeta.getTotalC();
+                    totalD += planeta.getTotalD();
                 }
             }
 
