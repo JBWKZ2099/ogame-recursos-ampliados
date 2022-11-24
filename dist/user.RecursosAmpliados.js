@@ -1958,6 +1958,7 @@
 
             var bonus_taladrador = 0.02, /* 2% cada recurso */
                 taladrador_qty = 0,
+                taladrador_percentage = 1,
                 player_class = $("#characterclass div.characterclass"),
                 alliance_class = $(document).find(".allianceclass"),
                 geologo = $("#officers > a.geologist.on").length,
@@ -2030,6 +2031,7 @@
 
             // taladrador
             taladrador_qty = $(lista).find("tbody > tr.217 > td:first-child").html();
+            taladrador_percentage = parseInt( $(lista).find("tbody > tr.217 > td:last-child").find("select").val() ) / 100;
             // if( life_forms.indexOf(life_form)>-1 ) {
             //     if( life_form=="Rock´tal" || life_form=="Rock`tal" )
             //         taladrador_qty = getContenido(lista, 20,0).innerHTML;
@@ -2041,7 +2043,7 @@
             taladrador_qty = (taladrador_qty.split(": ")[1]).split("/")[0];
             /*taladrador_qty = taladrador_qty.substring(taladrador_qty.indexOf('/'), taladrador_qty.indexOf(': ')+2);*/
             taladrador_qty = taladrador_qty.replace(/\./g, "").replace(/\,/g, "").trim();
-            planeta.metal_taladrador = planeta.metal_produccion_mina * ( taladrador_qty * bonus_taladrador / 100 );
+            planeta.metal_taladrador = planeta.metal_produccion_mina * ( taladrador_qty * bonus_taladrador / 100 ) * taladrador_percentage;
             /**
              *
              * // Se comenta para mejorar la precisión
@@ -2235,7 +2237,7 @@
              * planeta.cristal_oficiales = parseInt(parcial);*/
 
             // taladrador
-            planeta.cristal_taladrador = planeta.cristal_produccion_mina * ( taladrador_qty * bonus_taladrador / 100 );
+            planeta.cristal_taladrador = planeta.cristal_produccion_mina * ( taladrador_qty * bonus_taladrador / 100 ) * taladrador_percentage;
             /*parcial = getContenido(lista, 9,3).innerHTML;
             parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
             parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
@@ -2353,7 +2355,7 @@
              * planeta.deuterio_oficiales = parseInt(parcial);*/
 
             // taladrador
-            planeta.deuterio_taladrador = planeta.deuterio_produccion_mina * ( taladrador_qty * bonus_taladrador / 100 );
+            planeta.deuterio_taladrador = planeta.deuterio_produccion_mina * ( taladrador_qty * bonus_taladrador / 100 ) * taladrador_percentage;
             /*parcial = getContenido(lista, 9,4).innerHTML;
             parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
             parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
