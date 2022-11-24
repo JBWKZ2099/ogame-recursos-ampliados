@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 2.98
+// @version 2.99
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados
@@ -20,7 +20,7 @@
 
 (function () {
 
-    var SCRIPT_VERSION = "2.97";
+    var SCRIPT_VERSION = "2.99";
 
     var unsafe = (typeof unsafeWindow) != "undefined" ? unsafeWindow : window;
 
@@ -1737,6 +1737,9 @@
             var fusion = parseFloat(this.deuterio_gasto_fusion || 0);
             var plasma = parseFloat(this.deuterio_plasma || 0);
 
+            if( fusion<0 )
+                fusion = fusion*-1;
+
             if(equipoComandoActivo()) {
                 //geo = Math.round((this.deuterio_produccion_mina ||0) * 0.12);
                 geo = parseFloat(this.deuterio_geologo || 0);
@@ -1887,7 +1890,41 @@
         return ret;
     }
 
+    function clearAllData(reload = false) {
+        planets = $(".smallplanet:not(.ogl-summary)");
+        numPlanets = planets.length;
 
+        listaPlanetas = "";
+        for(var i=0; i<planets.length; i++ ) {
+            cord = $( planets[i] ).find(".planet-koords");
+            nombre = $( planets[i] ).find(".planet-name");
+
+            listaPlanetas += cord[0].innerHTML + ";";
+            options.set(cord[0].innerHTML + "_nombre", nombre[0].innerHTML);
+
+        }
+
+        options.set("lista", listaPlanetas);
+        listaPlanetas = listaPlanetas.split(";");
+        var ls_name = "",
+            ls_obj = "";
+
+        for( var j=0; j<(listaPlanetas.length - 1); j++ ) {
+            ls_name = `ogres_${getServer()}_${listaPlanetas[j]}_nombre`;
+            ls_obj = `ogres_${getServer()}_${listaPlanetas[j]}_objplanet`;
+
+            if( localStorage.getItem(ls_name)==null || localStorage.getItem(ls_obj)==null ) {
+                ls_name = `ogres_${getServer()}_[${listaPlanetas[j]}]_nombre`;
+                ls_obj = `ogres_${getServer()}_[${listaPlanetas[j]}]_objplanet`;
+            }
+
+            localStorage.removeItem(ls_name);
+            localStorage.removeItem(ls_obj);
+        }
+
+        if( reload )
+            window.location.reload();
+    }
 
     function getDatosSummary() {
 
@@ -2495,7 +2532,6 @@
                 }
             }*///YA NO ESTA INTEGRADO POR ESO NO REQUIERE RESTARLO.--------------------------------VERSION OGAME 6.5.1 +
             options.set(getPosActual() + "_objplanet", planeta.save());
-
         }
 
 
@@ -2534,7 +2570,6 @@
     if (location.href.indexOf('-nl.ogame.gameforge.com') != -1) { LANG = LANG_NL; }
 
     if( location.href.indexOf('/game/index.php?page=ingame&component=resourcesettings')!=-1 || location.href.indexOf('/game/index.php?page=ingame&component=resourceSettings')!=-1 ) {
-
         getDatosSummary();
 
         var nivel_plasma = getNivelPlasma();
@@ -2616,6 +2651,9 @@
                     amplificadoresD += parseFloat(planeta.deuterio_produccion_amplificador || 0);
 
                     gastoFusion += parseInt(planeta.deuterio_gasto_fusion || 0);
+
+                    if( gastoFusion<0 )
+                        gastoFusion = gastoFusion*-1;
 
                     taladradorM += parseFloat(planeta.metal_taladrador  || 0);
                     classeM += parseFloat(planeta.metal_classe  || 0);
@@ -2961,39 +2999,7 @@
 
             $(document).on("click", ".ogres-clear-data", function(e){
                 e.preventDefault();
-
-                planets = $(".smallplanet:not(.ogl-summary)");
-                numPlanets = planets.length;
-
-                listaPlanetas = "";
-                for(var i=0; i<planets.length; i++ ) {
-                    cord = $( planets[i] ).find(".planet-koords");
-                    nombre = $( planets[i] ).find(".planet-name");
-
-                    listaPlanetas += cord[0].innerHTML + ";";
-                    options.set(cord[0].innerHTML + "_nombre", nombre[0].innerHTML);
-
-                }
-
-                options.set("lista", listaPlanetas);
-                listaPlanetas = listaPlanetas.split(";");
-                var ls_name = "",
-                    ls_obj = "";
-
-                for( var j=0; j<(listaPlanetas.length - 1); j++ ) {
-                    ls_name = `ogres_${getServer()}_${listaPlanetas[j]}_nombre`;
-                    ls_obj = `ogres_${getServer()}_${listaPlanetas[j]}_objplanet`;
-
-                    if( localStorage.getItem(ls_name)==null || localStorage.getItem(ls_obj)==null ) {
-                        ls_name = `ogres_${getServer()}_[${listaPlanetas[j]}]_nombre`;
-                        ls_obj = `ogres_${getServer()}_[${listaPlanetas[j]}]_objplanet`;
-                    }
-
-                    localStorage.removeItem(ls_name);
-                    localStorage.removeItem(ls_obj);
-                }
-
-                window.location.reload();
+                clearAllData(true);
             });
 
             var obj;
