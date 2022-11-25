@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 2.99
+// @version 2.991
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados
@@ -20,7 +20,7 @@
 
 (function () {
 
-    var SCRIPT_VERSION = "2.99";
+    var SCRIPT_VERSION = "2.991";
 
     var unsafe = (typeof unsafeWindow) != "undefined" ? unsafeWindow : window;
 
@@ -1541,6 +1541,22 @@
         var life_form_cristal_bonus; // VERSION OGAME 9.0
         var life_form_deuterio_bonus; // VERSION OGAME 9.0
 
+        /*Variables para los edificios de cada forma de vida*/
+        var lifeform_type; // VERSION OGAME 9.0
+        var lf_building_metal_bonus; // VERSION OGAME 9.0
+        var lf_building_cristal_bonus; // VERSION OGAME 9.0
+        var lf_building_deuterio_bonus; // VERSION OGAME 9.0
+        var lifeform_checker = $("#lifeform").length;
+        var life_forms = [
+            "Humanos",
+            "Human",
+            "Rock´tal",
+            "Rock`tal",
+            "Mecha",
+            "Mecas",
+            "Kaelesh",
+        ];
+
         var almacen_metal;
         var almacen_cristal;
         var almacen_deuterio;
@@ -1608,6 +1624,11 @@
             ret += this.life_form_cristal_bonus + separador;
             ret += this.life_form_deuterio_bonus + separador;
 
+            ret += this.lifeform_type + separador;
+            ret += this.lf_building_metal_bonus + separador;
+            ret += this.lf_building_cristal_bonus + separador;
+            ret += this.lf_building_deuterio_bonus + separador;
+
             return ret;
         }
 
@@ -1669,6 +1690,11 @@
             this.life_form_metal_bonus = partes[37] || 0;
             this.life_form_cristal_bonus = partes[38] || 0;
             this.life_form_deuterio_bonus = partes[39] || 0;
+
+            this.lifeform_type = partes[40] || 0;
+            this.lf_building_metal_bonus = partes[41] || 0;
+            this.lf_building_cristal_bonus = partes[42] || 0;
+            this.lf_building_deuterio_bonus = partes[43] || 0;
         }
 
         this.getTotalM = function() {
@@ -1694,8 +1720,9 @@
             }
 
             var life_form_metal = parseFloat( this.life_form_metal_bonus || 0 );
+            var lfb_metal = parseFloat(this.lf_building_metal_bonus || 0);
 
-            return base + mina + geo + ofi + plasma + amplificador + parseFloat(this.metal_taladrador) + parseFloat(this.metal_classe) + parseFloat(this.metal_clase_alianza) + life_form_metal;
+            return base + mina + geo + ofi + plasma + amplificador + parseFloat(this.metal_taladrador) + parseFloat(this.metal_classe) + parseFloat(this.metal_clase_alianza) + life_form_metal + lfb_metal;
         }
 
         this.getTotalC = function() {
@@ -1722,8 +1749,9 @@
             }
 
             var life_form_cristal = parseFloat( this.life_form_cristal_bonus || 0 );
+            var lfb_cristal = parseFloat(this.lf_building_cristal_bonus || 0);
 
-            return base + mina + geo + ofi + plasma + amplificador + parseFloat(this.cristal_taladrador) + parseFloat(this.cristal_classe) + parseFloat(this.cristal_clase_alianza) + life_form_cristal;
+            return base + mina + geo + ofi + plasma + amplificador + parseFloat(this.cristal_taladrador) + parseFloat(this.cristal_classe) + parseFloat(this.cristal_clase_alianza) + life_form_cristal + lfb_cristal;
         }
 
         this.getTotalD = function() {
@@ -1753,8 +1781,9 @@
             }
 
             var life_form_deuterio = parseFloat( this.life_form_deuterio_bonus || 0 );
+            var lfb_deuterio = parseFloat(this.lf_building_deuterio_bonus || 0);
 
-            return mina + geo + plasma + ofi + (amplificador - fusion) + parseFloat(this.deuterio_taladrador) + parseFloat(this.deuterio_classe) + parseFloat(this.deuterio_clase_alianza) + life_form_deuterio;
+            return mina + geo + plasma + ofi + (amplificador - fusion) + parseFloat(this.deuterio_taladrador) + parseFloat(this.deuterio_classe) + parseFloat(this.deuterio_clase_alianza) + life_form_deuterio + lfb_deuterio;
         }
 
         this.getActualizado = function() {
@@ -1926,6 +1955,31 @@
             window.location.reload();
     }
 
+    function cleanValue(item) {
+        format = item.split("title=\"")[1].split("\"")[0];
+        format = format.trim();
+
+        format2 = format.split(".");
+
+        return formatVal(format2);
+    }
+
+    function formatVal(item) {
+        var format = 0;
+
+        if( item.length>=2 ) {
+            $.each(item, function(i, el) {
+
+                if( i<(item.length-1) )
+                    format += el;
+                else
+                    format += `.${el}`;
+            });
+        }
+
+        return parseFloat(format);
+    }
+
     function getDatosSummary() {
 
 
@@ -1956,7 +2010,7 @@
 
             var lista = getElementsByClass("list")[0];
 
-            var bonus_taladrador = geologoActivo() ? 0.03 : 0.02, /* 2% cada recurso, si está geólogo es 3% */
+            var bonus_taladrador = $("#characterclass div.characterclass").hasClass("miner") && geologoActivo() ? 0.03 : 0.02, /* 2% cada recurso, si está geólogo y la clase del jugador es recolector es 3% */
                 taladrador_qty = 0,
                 taladrador_percentage = 1,
                 player_class = $("#characterclass div.characterclass"),
@@ -2069,17 +2123,6 @@
 
             // amplificador
             parcial = $(lista).find("tbody > tr.1000 > td:nth-child(3)").html();
-
-            // parcial = getContenido(lista, 11,2).innerHTML;
-
-            // if( $("#lifeform").length>0 ) {
-            //     /*Validación Rocktal*/
-            //     if( life_form=="Rock´tal" || life_form=="Rock`tal" )
-            //         parcial = getContenido(lista, 22,2).innerHTML;
-            //     else
-            //         parcial = getContenido(lista, 23,2).innerHTML;
-            // }
-
             parcial = parcial.split("title=\"")[1].split("\"")[0];
             parcial = parcial.trim();
 
@@ -2175,10 +2218,6 @@
 
             // amplificador
             parcial = $(lista).find("tbody > tr.1000 > td:nth-child(4)").html();
-
-            if( $("#lifeform").length>0 )
-                parcial = getContenido(lista, 23,3).innerHTML;
-
             parcial = parcial.split("title=\"")[1].split("\"")[0];
             parcial = parcial.trim();
 
@@ -2293,10 +2332,6 @@
 
             // amplificador
             parcial = $(lista).find("tbody > tr.1000 > td:nth-child(5)").html();
-
-            if( $("#lifeform").length>0 )
-                parcial = getContenido(lista, 23,4).innerHTML;
-
             parcial = parcial.split("title=\"")[1].split("\"")[0];
             parcial = parcial.trim();
 
@@ -2389,76 +2424,139 @@
              * planeta.deuterio_clase_alianza = parseInt(parcial);*/
 
             // ----- Formas de vida -------------------------------------------------------
+                /*
+                =Mecas=
+                - Sintetizador de Alto Rendimiento
+                - Deuterio
+
+                =Rock`tal=
+                - Fundición de Magma
+                - Metal
+
+                - Refinería de cristal
+                - Cristal
+
+                - Sintonizador de Deuterio
+                - Deuterio
+
+                =Kaelesh=
+                - Nada
+
+                =Humanos=
+                - Fundición de Alta Energía
+                - Metal
+
+                - Explotación por Fusión
+                - Cristal y Deuterio
+                */
 
             if( $("#lifeform").length>0 ) {
+                var lifeform_type = $("#lifeform .lifeform-item-icon").attr("class");
                 // forma de vida bonus metal
                 /*parcial = getContenido(lista, 28,2).innerHTML;*/ /*Ejemplo para saber si hay miles o millones*/
                 parcial = $(lista).find("tbody > tr.1006 > td:nth-child(3)").html();
                 parcial = parcial.split("title=\"")[1].split("\"")[0];
                 parcial = parcial.trim();
-
                 parcial2 = parcial.split(".");
+                parcial = formatVal(parcial2);
+                planeta.life_form_metal_bonus = parseFloat(parcial);
 
-                if( parcial2.length>2 ) {
-                    parcial3 = "";
-                    $.each(parcial2, function(i, el) {
+                /*Humans*/
+                if( lifeform_type.indexOf("lifeform1")>-1 )
+                    planeta.lifeform_type = "lifeform1";
+                /*Rock`tal*/
+                if( lifeform_type.indexOf("lifeform2")>-1 )
+                    planeta.lifeform_type = "lifeform2";
+                /*Mechas*/
+                if( lifeform_type.indexOf("lifeform3")>-1 )
+                    planeta.lifeform_type = "lifeform3";
+                /*Kaelesh*/
+                if( lifeform_type.indexOf("lifeform4")>-1 )
+                    planeta.lifeform_type = "lifeform4";
 
-                        if( i<(parcial2.length-1) )
-                            parcial3 += el;
-                        else
-                            parcial3 += `.${el}`;
-                    });
+                var flag_kaelesh = true;
+                /*Humans*/
+                if( lifeform_type.indexOf("lifeform1")>-1 )
+                    parcial = $(lista).find("tbody > tr.11106 > td:nth-child(3)").html();
 
-                    parcial = parseFloat(parcial3) || 0;
-                }
+                /*Rock`tal*/
+                if( lifeform_type.indexOf("lifeform2")>-1 )
+                    parcial = $(lista).find("tbody > tr.12106 > td:nth-child(3)").html();
 
-                planeta.life_form_metal_bonus = parseFloat(parcial) || 0;
+                /*Mechas && Kaelesh*/
+                if( lifeform_type.indexOf("lifeform3")>-1 || lifeform_type.indexOf("lifeform4")>-1 )
+                    flag_kaelesh = false;
+
+                if( flag_kaelesh )
+                    planeta.lf_building_metal_bonus = parseFloat(cleanValue(parcial));
+                else
+                    planeta.lf_building_metal_bonus = 0;
+
 
                 // forma de vida bonus cristal
                 parcial = $(lista).find("tbody > tr.1006 > td:nth-child(4)").html();
                 parcial = parcial.split("title=\"")[1].split("\"")[0];
                 parcial = parcial.trim();
-
                 parcial2 = parcial.split(".");
+                parcial = formatVal(parcial2);
+                planeta.life_form_cristal_bonus = parseFloat(parcial);
 
-                if( parcial2.length>2 ) {
-                    parcial3 = "";
-                    $.each(parcial2, function(i, el) {
+                /*Humans*/
+                if( lifeform_type.indexOf("lifeform1")>-1 )
+                    parcial = $(lista).find("tbody > tr.11108 > td:nth-child(4)").html();
 
-                        if( i<(parcial2.length-1) )
-                            parcial3 += el;
-                        else
-                            parcial3 += `.${el}`;
-                    });
+                /*Rock`tal*/
+                if( lifeform_type.indexOf("lifeform2")>-1 )
+                    parcial = $(lista).find("tbody > tr.12109 > td:nth-child(4)").html();
 
-                    parcial = parseFloat(parcial3) || 0;
-                }
-                planeta.life_form_cristal_bonus = parseFloat(parcial) || 0;
+                /*Mechas && Kaelesh*/
+                if( lifeform_type.indexOf("lifeform3")>-1 || lifeform_type.indexOf("lifeform4")>-1 )
+                    flag_kaelesh = false;
+
+                if( flag_kaelesh )
+                    planeta.lf_building_cristal_bonus = parseFloat(cleanValue(parcial));
+                else
+                    planeta.lf_building_cristal_bonus = 0;
 
                 // forma de vida bonus deuterio
                 parcial = $(lista).find("tbody > tr.1006 > td:nth-child(5)").html();
                 parcial = parcial.split("title=\"")[1].split("\"")[0];
                 parcial = parcial.trim();
-
                 parcial2 = parcial.split(".");
-
-                if( parcial2.length>2 ) {
-                    parcial3 = "";
-                    $.each(parcial2, function(i, el) {
-
-                        if( i<(parcial2.length-1) )
-                            parcial3 += el;
-                        else
-                            parcial3 += `.${el}`;
-                    });
-
-                    parcial = parseFloat(parcial3) || 0;
-                }
+                parcial = formatVal(parcial2);
                 planeta.life_form_deuterio_bonus = parseFloat(parcial) || 0;
+
+                /*Humans*/
+                if( lifeform_type.indexOf("lifeform1")>-1 )
+                    parcial = $(lista).find("tbody > tr.11108 > td:nth-child(5)").html();
+
+                /*Rock`tal*/
+                if( lifeform_type.indexOf("lifeform2")>-1 )
+                    parcial = $(lista).find("tbody > tr.12110 > td:nth-child(5)").html();
+
+                /*Mechas*/
+                if( lifeform_type.indexOf("lifeform3")>-1 )
+                    parcial = $(lista).find("tbody > tr.13110 > td:nth-child(5)").html();
+
+                /*Kaelesh*/
+                if( lifeform_type.indexOf("lifeform4")>-1 )
+                    flag_kaelesh = false;
+
+                if( flag_kaelesh )
+                    planeta.lf_building_deuterio_bonus = parseFloat(cleanValue(parcial));
+                else
+                    planeta.lf_building_deuterio_bonus = 0;
+
             } else {
+                planeta.lifeform_type = "NonLifeFormSelected";
+
                 planeta.life_form_metal_bonus = 0;
                 planeta.life_form_cristal_bonus = 0;
                 planeta.life_form_deuterio_bonus = 0;
+
+                planeta.lf_building_metal_bonus = 0;
+                planeta.lf_building_cristal_bonus = 0;
+                planeta.lf_building_deuterio_bonus = 0;
             }
 
             // ----- almacenes ------------------------------------------------------------
