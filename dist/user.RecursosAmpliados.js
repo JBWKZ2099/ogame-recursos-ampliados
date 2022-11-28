@@ -1834,36 +1834,36 @@
         var ret = "";
 
         if(str.toUpperCase() == "BASICO") {
-            ret = getContenido(lista, 2,0).innerHTML;
+            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 2 : 3,0).innerHTML;
         }
 
         if(str.toUpperCase() == "METAL") {
-            ret = getContenido(lista, 3,0).innerHTML;
+            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 3 : 4,0).innerHTML;
             ret = ret.substring(0, ret.indexOf("("));
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
         if(str.toUpperCase() == "CRISTAL") {
-            ret = getContenido(lista, 4,0).innerHTML;
+            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 4 : 5,0).innerHTML;
             ret = ret.substring(0, ret.indexOf("("));
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
         if(str.toUpperCase() == "DEUTERIO") {
-            ret = getContenido(lista, 5,0).innerHTML;
+            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 5 : 6,0).innerHTML;
             ret = ret.substring(0, ret.indexOf("("));
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
         if(str.toUpperCase() == "FUSION") {
-            ret = getContenido(lista, 7,0).innerHTML;
+            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 7 : 8,0).innerHTML;
             ret = ret.substring(0, ret.indexOf("("));
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
         // Taladrador (Número: x.xxx)
         if(str.toUpperCase() == "TALADRADOR") {
-            ret = getContenido(lista, 9,0).innerHTML;
+            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 9 : 10,0).innerHTML;
 
             /*Life Forms Validation*/
             if( $("#lifeform").length>0 )
@@ -1881,8 +1881,13 @@
             ret = getContenido(lista, 11,0).innerHTML;
 
             /*Life Forms Validation*/
-            if( $("#lifeform").length>0 )
+            if( $("#lifeform").length>0 ) {
                 ret = getContenido(lista, 23,0).innerHTML;
+
+                /*Rock`tal*/
+                if( $("#lifeform div").attr("class").indexOf("lifeform2")>-1 )
+                    ret = getContenido(lista, 22,0).innerHTML;
+            }
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
@@ -2734,17 +2739,66 @@
                     var planeta = new ObjPlaneta();
                     planeta.load(options.get(sep[k] + "_objplanet"));
 
+                    baseM += parseInt(planeta.metal_base || 0);
+                    baseC += parseInt(planeta.cristal_base || 0);
+                    baseD += parseInt(planeta.deuterio_base || 0);
+
+                    minaM += parseInt(planeta.metal_produccion_mina || 0);
+                    minaC += parseInt(planeta.cristal_produccion_mina || 0);
+                    minaD += parseInt(planeta.deuterio_produccion_mina || 0);
+
+                    plasmaM += parseFloat(planeta.metal_plasma || 0);
+                    plasmaC += parseFloat(planeta.cristal_plasma || 0) ;
+                    plasmaD += parseFloat(planeta.deuterio_plasma || 0);
+
+                    amplificadoresM += parseFloat(planeta.metal_produccion_amplificador || 0);
+                    amplificadoresC += parseFloat(planeta.cristal_produccion_amplificador || 0);
+                    amplificadoresD += parseFloat(planeta.deuterio_produccion_amplificador || 0);
+
+                    gastoFusion += parseInt(planeta.deuterio_gasto_fusion || 0);
+
+                    if( gastoFusion<0 )
+                        gastoFusion = gastoFusion*-1;
+
+                    taladradorM += parseFloat(planeta.metal_taladrador  || 0);
+                    classeM += parseFloat(planeta.metal_classe  || 0);
+                    taladradorC += parseFloat(planeta.cristal_taladrador  || 0);
+                    classeC += parseFloat(planeta.cristal_classe  || 0);
+                    taladradorD += parseFloat(planeta.deuterio_taladrador  || 0);
+                    classeD += parseFloat(planeta.deuterio_classe  || 0);
+
+                    clasAliM += parseFloat(planeta.metal_clase_alianza  || 0);
+                    clasAliC += parseFloat(planeta.cristal_clase_alianza  || 0);
+                    clasAliD += parseFloat(planeta.deuterio_clase_alianza  || 0);
+
+
                     if(equipoComandoActivo()) {
+                        geoM += parseFloat(planeta.metal_geologo || 0);
+                        geoC += parseFloat(planeta.cristal_geologo || 0);
+                        geoD += parseFloat(planeta.deuterio_geologo || 0);
+                        ofiM += parseFloat(planeta.metal_oficiales || 0);
+                        ofiC += parseFloat(planeta.cristal_oficiales || 0);
+                        ofiD += parseFloat(planeta.deuterio_oficiales || 0);
                         geoSTR = " (+10%)";
                         ofiSTR = " (+2%)";
                     } else {
-                        if( geologoActivo() )
+
+                        if(geologoActivo()) {
+                            geoM += parseFloat(planeta.metal_geologo || 0);
+                            geoC += parseFloat(planeta.cristal_geologo || 0);
+                            geoD += parseFloat(planeta.deuterio_geologo || 0);
                             geoSTR = " (+10%)";
+                        }
                     }
 
-                    totalM += planeta.getTotalM();
-                    totalC += planeta.getTotalC();
-                    totalD += planeta.getTotalD();
+                    /*Formas de vida*/
+                    lifeFormsMetal += parseFloat( planeta.life_form_metal_bonus || 0 );
+                    lifeFormsCristal += parseFloat( planeta.life_form_cristal_bonus || 0 );
+                    lifeFormsDeuterio += parseFloat( planeta.life_form_deuterio_bonus || 0 );
+
+                    totalM = baseM + minaM + geoM + ofiM + plasmaM + amplificadoresM + taladradorM + classeM + clasAliM + lifeFormsMetal;
+                    totalC = baseC + minaC + geoC + ofiC + plasmaC + amplificadoresC + taladradorC + classeC + clasAliC + lifeFormsCristal;
+                    totalD = baseD + minaD + geoD + ofiD + plasmaD + (amplificadoresD - gastoFusion) + taladradorD + classeD + clasAliD + lifeFormsDeuterio;
                 }
             }
 
