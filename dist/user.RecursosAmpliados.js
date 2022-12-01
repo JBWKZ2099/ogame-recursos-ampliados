@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 3
+// @version 3.0.1
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://github.com/JBWKZ2099/ogame-recursos-ampliados
@@ -20,7 +20,7 @@
 
 (function () {
 
-    var SCRIPT_VERSION = "3";
+    var SCRIPT_VERSION = "3.0.1";
 
     var unsafe = (typeof unsafeWindow) != "undefined" ? unsafeWindow : window;
 
@@ -1834,39 +1834,39 @@
         var ret = "";
 
         if(str.toUpperCase() == "BASICO") {
-            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 2 : 3,0).innerHTML;
+            ret = getContenido(lista, 2,0).innerHTML;
         }
 
         if(str.toUpperCase() == "METAL") {
-            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 3 : 4,0).innerHTML;
+            ret = getContenido(lista, 3,0).innerHTML;
             ret = ret.substring(0, ret.indexOf("("));
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
         if(str.toUpperCase() == "CRISTAL") {
-            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 4 : 5,0).innerHTML;
+            ret = getContenido(lista, 4,0).innerHTML;
             ret = ret.substring(0, ret.indexOf("("));
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
         if(str.toUpperCase() == "DEUTERIO") {
-            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 5 : 6,0).innerHTML;
+            ret = getContenido(lista, 5,0).innerHTML;
             ret = ret.substring(0, ret.indexOf("("));
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
         if(str.toUpperCase() == "FUSION") {
-            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 7 : 8,0).innerHTML;
+            ret = getContenido(lista, 7,0).innerHTML;
             ret = ret.substring(0, ret.indexOf("("));
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
 
         // Taladrador (Número: x.xxx)
         if(str.toUpperCase() == "TALADRADOR") {
-            ret = getContenido(lista, $(".listOfResourceSettingsPerPlanet").find("#factor").length==0 ? 9 : 10,0).innerHTML;
+            ret = getContenido(lista, 9,0).innerHTML;
 
             /*Life Forms Validation*/
-            if( $("#lifeform").length>0 )
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 )
                 ret = getContenido(lista, 21,0).innerHTML;
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
@@ -1881,7 +1881,7 @@
             ret = getContenido(lista, 11,0).innerHTML;
 
             /*Life Forms Validation*/
-            if( $("#lifeform").length>0 ) {
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 ) {
                 ret = getContenido(lista, 23,0).innerHTML;
 
                 /*Rock`tal*/
@@ -1895,7 +1895,7 @@
             ret = getContenido(lista, 15,0).innerHTML;
 
             /*Life Forms Validation*/
-            if( $("#lifeform").length>0 )
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 )
                 ret = getContenido(lista, 27,0).innerHTML;
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
@@ -1904,7 +1904,7 @@
             ret = getContenido(lista, 16,0).innerHTML;
 
             /*Life Forms Validation*/
-            if( $("#lifeform").length>0 )
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 )
                 ret = getContenido(lista, 28,0).innerHTML;
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
         }
@@ -2033,7 +2033,7 @@
                     "Kaelesh",
                 ];
 
-            if( $("#lifeform").length>0 )
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 )
                 var life_form = $("#lifeform > a[title]").attr("title").split("|")[0];
 
             /*
@@ -2455,8 +2455,9 @@
                 - Cristal y Deuterio
                 */
 
-            if( $("#lifeform").length>0 ) {
-                var lifeform_type = $("#lifeform .lifeform-item-icon").attr("class");
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 ) {
+                var $lf_icon = $("#lifeform .lifeform-item-icon");
+                var lifeform_type = $lf_icon.attr("class");
                 // forma de vida bonus metal
                 /*parcial = getContenido(lista, 28,2).innerHTML;*/ /*Ejemplo para saber si hay miles o millones*/
                 parcial = $(lista).find("tbody > tr.1006 > td:nth-child(3)").html();
@@ -2566,7 +2567,7 @@
 
             // ----- almacenes ------------------------------------------------------------
             // almacen de metal
-            if( $("#lifeform").length>0 )
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 )
                 parcial = $(lista).find("tbody > tr.1006").next().find("td:nth-child(2)").html();
             else
                 parcial = $(lista).find("tbody > tr.1005").next().find("td:nth-child(2)").html();
@@ -2585,7 +2586,7 @@
 
 
             // almacen de cristal
-            if( $("#lifeform").length>0 )
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 )
                 parcial = $(lista).find("tbody > tr.1006").next().find("td:nth-child(3)").html();
             else
                 parcial = $(lista).find("tbody > tr.1005").next().find("td:nth-child(3)").html();
@@ -2604,7 +2605,7 @@
 
 
             // almacen de deuterio
-            if( $("#lifeform").length>0 )
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 )
                 parcial = $(lista).find("tbody > tr.1006").next().find("td:nth-child(4)").html();
             else
                 parcial = $(lista).find("tbody > tr.1005").next().find("td:nth-child(4)").html();
@@ -2902,7 +2903,7 @@
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliM) + '</td><td class="">' + mostrarNumero(clasAliM*24) + '</td><td class="">' + mostrarNumero(clasAliM*24*7) + '</td><td class="">' + mostrarNumero(clasAliM*24*7*4) + '</td></tr>';
 
             var detail_id = 10;
-            if( $("#lifeform").length>0 ) {
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 ) {
                 tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label">' + getStrSummary("lifeforms") + '</td><td class="">' + mostrarNumero(lifeFormsMetal) + '</td><td class="">' + mostrarNumero(lifeFormsMetal*24) + '</td><td class="">' + mostrarNumero(lifeFormsMetal*24*7) + '</td><td class="">' + mostrarNumero(lifeFormsMetal*24*7*4) + '</td></tr>';
                 detail_id = 11;
             }
@@ -2922,7 +2923,7 @@
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliC) + '</td><td class="">' + mostrarNumero(clasAliC*24) + '</td><td class="">' + mostrarNumero(clasAliC*24*7) + '</td><td class="">' + mostrarNumero(clasAliC*24*7*4) + '</td></tr>';
 
             detail_id = 10;
-            if( $("#lifeform").length>0 ) {
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 ) {
                 tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label">' + getStrSummary("lifeforms") + '</td><td class="">' + mostrarNumero(lifeFormsCristal) + '</td><td class="">' + mostrarNumero(lifeFormsCristal*24) + '</td><td class="">' + mostrarNumero(lifeFormsCristal*24*7) + '</td><td class="">' + mostrarNumero(lifeFormsCristal*24*7*4) + '</td></tr>';
                 detail_id = 11;
             }
@@ -2942,7 +2943,7 @@
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliD) + '</td><td class="">' + mostrarNumero(clasAliD*24) + '</td><td class="">' + mostrarNumero(clasAliD*24*7) + '</td><td class="">' + mostrarNumero(clasAliD*24*7*4) + '</td></tr>';
 
             detail_id = 10;
-            if( $("#lifeform").length>0 ) {
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 ) {
                 tabla += '<tr class="" align="right" id="detalle'+tipo+'_'+detail_id+'" style="display:none"><td class="label">' + getStrSummary("lifeforms") + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio) + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio*24) + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio*24*7) + '</td><td class="">' + mostrarNumero(lifeFormsDeuterio*24*7*4) + '</td></tr>';
                 detail_id = 11;
             }
