@@ -2756,10 +2756,10 @@
                     amplificadoresC += parseFloat(planeta.cristal_produccion_amplificador || 0);
                     amplificadoresD += parseFloat(planeta.deuterio_produccion_amplificador || 0);
 
-                    gastoFusion += parseInt(planeta.deuterio_gasto_fusion || 0);
+                    gastoFusion -= parseInt(planeta.deuterio_gasto_fusion || 0);
 
-                    if( gastoFusion<0 )
-                        gastoFusion = gastoFusion*-1;
+                    /*if( gastoFusion<0 )
+                        gastoFusion = gastoFusion*-1;*/
 
                     taladradorM += parseFloat(planeta.metal_taladrador  || 0);
                     classeM += parseFloat(planeta.metal_classe  || 0);
@@ -2799,7 +2799,7 @@
 
                     totalM = baseM + minaM + geoM + ofiM + plasmaM + amplificadoresM + taladradorM + classeM + clasAliM + lifeFormsMetal;
                     totalC = baseC + minaC + geoC + ofiC + plasmaC + amplificadoresC + taladradorC + classeC + clasAliC + lifeFormsCristal;
-                    totalD = baseD + minaD + geoD + ofiD + plasmaD + (amplificadoresD - gastoFusion) + taladradorD + classeD + clasAliD + lifeFormsDeuterio;
+                    totalD = minaD + geoD + ofiD + plasmaD + (amplificadoresD - gastoFusion) + taladradorD + classeD + clasAliD + lifeFormsDeuterio;
                 }
             }
 
