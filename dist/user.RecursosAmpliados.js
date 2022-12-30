@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 3.0.1
+// @version 3.0.3
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://github.com/JBWKZ2099/ogame-recursos-ampliados
@@ -15,7 +15,7 @@
 // @license MIT
 // Se le hicieron solo unas modificaciones para que trabaje en el version de Ogame 6.5.1
 // @author jgarrone todos los creditos // Aporte de labelladurmiente para actualizar a Versión 7.1
-//
+// Aporte de BigBoss (JBWKZ2099) para actualizar a la versión 9.1 (Se contemplan formas de vida)
 // ==/UserScript==
 
 (function () {
@@ -133,6 +133,7 @@
         ,produccion_completa: "Producción completa"
         ,geologo: "Geólogo"
         ,officers: "Equipo Comando"
+        ,lifeforms: "Formas de Vida"
 
         ,p_carga: "P. Carga"
         ,g_carga: "G. Carga"
@@ -199,6 +200,7 @@
         ,produccion_completa: "Complete production"
         ,geologo: "Geologist"
         ,officers: "Officers"
+        ,lifeforms: "Life Forms"
         ,translate_by: "The Undertaker"
 
 
@@ -264,6 +266,7 @@
         ,produccion_completa: "production complète"
         ,geologo: "Géologue"
         ,officers: "Officiers"
+        ,lifeforms: "Life Forms"
 
         ,p_carga: "P.Transporteur"
         ,g_carga: "G.Transporteur"
@@ -328,6 +331,7 @@
         ,produccion_completa: "Complete production"
         ,geologo: "Geologist"
         ,officers: "офицери"
+        ,lifeforms: "Life Forms"
 
         ,p_carga: "М. Транс."
         ,g_carga: "Г. Транс."
@@ -391,6 +395,7 @@
         ,produccion_completa: "Complete production"
         ,geologo: "Geologist"
         ,officers: "офицеры"
+        ,lifeforms: "Life Forms"
 
         ,p_carga: "Малый  транспорт"
         ,g_carga: "Большой транспорт"
@@ -454,6 +459,7 @@
         ,produccion_completa: "Complete production"
         ,geologo: "Geologist"
         ,officers: "長官"
+        ,lifeforms: "Life Forms"
         ,p_carga: "小型運輸艦"
         ,g_carga: "大型運輸艦"
         ,c_ligero: "輕型戰鬥機"
@@ -514,6 +520,7 @@
         ,produccion_completa: "Πλήρης Παραγωγή"
         ,geologo: "Γεωλόγος"
         ,officers: "αξιωματικοί"
+        ,lifeforms: "Life Forms"
 
         ,p_carga: "Μικρό Μεταγωγικό"
         ,g_carga: "Μεγάλο Μεταγωγικό"
@@ -580,6 +587,7 @@
         ,produccion_completa: "Complete production"
         ,geologo: "Geologist"
         ,officers: "Betjente"
+        ,lifeforms: "Life Forms"
 
         ,p_carga: "Lille Transporter"
         ,g_carga: "Stor Transporter"
@@ -643,6 +651,7 @@
         ,produccion_completa: "Complete production"
         ,geologo: "Geologist"
         ,officers: "Ufficiali"
+        ,lifeforms: "Life Forms"
         ,p_carga: "Cargo Piccolo"
         ,g_carga: "Cargo Grande"
         ,c_ligero: "Caccia Leggero"
@@ -704,6 +713,7 @@
         ,produccion_completa: "Complete production"
         ,geologo: "Geologist"
         ,officers: "Oficiais"
+        ,lifeforms: "Life Forms"
 
         ,p_carga: "Cargueiro Pequeno"
         ,g_carga: "Cargueiro Grande"
@@ -767,6 +777,7 @@
         ,produccion_completa: "Complete production"
         ,geologo: "Geologist"
         ,officers: "Oficerowie"
+        ,lifeforms: "Life Forms"
 
         ,p_carga: "Mały transporter"
         ,g_carga: "Duży transporter"
@@ -831,6 +842,7 @@
         ,produccion_completa: "Complete production"
         ,geologo: "Geologist"
         ,officers: "Offiziere"
+        ,lifeforms: "Life Forms"
         ,p_carga: "kleiner Transporter"
         ,g_carga: "großer Transporter"
         ,c_ligero: "leichter Jäger"
@@ -891,6 +903,7 @@
         ,produccion_completa: "Complete productie"
         ,geologo: "Geoloog"
         ,officers: "Officieren"
+        ,lifeforms: "Life Forms"
 
         ,p_carga: "Klein vrachtschip"
         ,g_carga: "Groot vrachtschip"
@@ -1350,6 +1363,7 @@
         text = text.replace(/{PRODUCCION_COMPLETA}/gi, LANG.produccion_completa)
         text = text.replace(/{GEOLOGO}/gi, LANG.geologo)
         text = text.replace(/{EQUIPO_COMANDO}/gi, LANG.officers)
+        text = text.replace(/{FORMAS_DE_VIDA}/gi, LANG.lifeforms)
 
 
         text = text.replace('{P_CARGA}', LANG.p_carga)
@@ -1410,7 +1424,7 @@
                 [/{\/SIZE}/gi, '</font>'],
                 [/{\/COLOR}/gi, '</font>'] ];
 
-            patron = patron.replace(/{URL_SCRIPT}/gi, '<a href="https://openuserjs.org/install/jgarrone/OGame_Recursos_Ampliados.user.js">OGame Recursos Ampliados ' + SCRIPT_VERSION.substr(0,SCRIPT_VERSION.lastIndexOf(".")) + '</a>');
+            patron = patron.replace(/{URL_SCRIPT}/gi, '<a href="https://raw.githubusercontent.com/JBWKZ2099/ogame-recursos-ampliados/master/dist/user.RecursosAmpliados.js">OGame Recursos Ampliados ' + SCRIPT_VERSION + '</a>');
 
             for(var i = 0; i < colores.length; i++)
                 patron = patron.replace(colores[i][0],'<font color="' + colores[i][1] + '">');
@@ -1431,7 +1445,7 @@
                 [/{\/SIZE}/gi, '[/size]'],
                 [/{\/COLOR}/gi, '[/color]'] ];
 
-            patron = patron.replace(/{URL_SCRIPT}/gi, '[url=https://openuserjs.org/install/jgarrone/OGame_Recursos_Ampliados.user.js]OGame Recursos Ampliados ' + SCRIPT_VERSION.substr(0,SCRIPT_VERSION.lastIndexOf(".")) + '[/url]');
+            patron = patron.replace(/{URL_SCRIPT}/gi, '[url=https://raw.githubusercontent.com/JBWKZ2099/ogame-recursos-ampliados/master/dist/user.RecursosAmpliados.js]OGame Recursos Ampliados ' + SCRIPT_VERSION.substr(0,SCRIPT_VERSION.lastIndexOf(".")) + '[/url]');
 
             for(var i = 0; i < colores.length; i++)
                 patron = patron.replace(colores[i][0],'[color=' + colores[i][1] + ']');
@@ -1451,7 +1465,7 @@
                 [/{\/SIZE}/gi, '[/size]'],
                 [/{\/COLOR}/gi, '[/color]'] ];
 
-            patron = patron.replace(/{URL_SCRIPT}/gi, '[url=https://openuserjs.org/install/jgarrone/OGame_Recursos_Ampliados.user.js]OGame Recursos Ampliados ' + SCRIPT_VERSION.substr(0,SCRIPT_VERSION.lastIndexOf(".")) + '[/url]');
+            patron = patron.replace(/{URL_SCRIPT}/gi, '[url=https://raw.githubusercontent.com/JBWKZ2099/ogame-recursos-ampliados/master/dist/user.RecursosAmpliados.js]OGame Recursos Ampliados ' + SCRIPT_VERSION.substr(0,SCRIPT_VERSION.lastIndexOf(".")) + '[/url]');
 
             for(var i = 0; i < colores.length; i++)
                 patron = patron.replace(colores[i][0],'[color=' + colores[i][1] + ']');
@@ -1468,14 +1482,14 @@
 
     function setTxtBBCode(tipo) {
 
-        if(tipo == 0) {
+        /*if(tipo == 0) {
             document.getElementById("txtBB").value = codificar(bbcode_basico, "phpbb");
             document.getElementById("preview").innerHTML = codificar(bbcode_basico, "html");
         }
         if(tipo == 1) {
             document.getElementById("txtBB").value = codificar(bbcode_completo, "phpbb");
             document.getElementById("preview").innerHTML = codificar(bbcode_completo, "html");
-        }
+        }*/
         if(tipo == 2) {
             document.getElementById("txtBB").value = codificar(bbcode_basico2, "phpbb");
             document.getElementById("preview").innerHTML = codificar(bbcode_basico2, "html");
@@ -1868,7 +1882,7 @@
             /*Life Forms Validation*/
             if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 )
                 ret = getContenido(lista, 21,0).innerHTML;
-            ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
+            ret = ret.replace(/\./g, "").replace(/\,/g, "").trim().split(" (")[0];
         }
         if(str.toUpperCase() == "PLASMA") {
             ret = $(lista).find("tbody > tr.122 > td:nth-child(1)").html();
@@ -2734,6 +2748,9 @@
             var lifeFormsMetal = 0;
             var lifeFormsCristal = 0;
             var lifeFormsDeuterio = 0;
+            var lifeFormsBuildingsMetalBonus = 0;
+            var lifeFormsBuildingsCristalBonus = 0;
+            var lifeFormsBuildingsDeuterioBonus = 0;
 
             for(var k = 0; k < sep.length; k++){
                 if(sep[k].length > 3) {
@@ -2796,10 +2813,13 @@
                     lifeFormsMetal += parseFloat( planeta.life_form_metal_bonus || 0 );
                     lifeFormsCristal += parseFloat( planeta.life_form_cristal_bonus || 0 );
                     lifeFormsDeuterio += parseFloat( planeta.life_form_deuterio_bonus || 0 );
+                    lifeFormsBuildingsMetalBonus += parseFloat( planeta.lf_building_cristal_bonus || 0 );
+                    lifeFormsBuildingsCristalBonus += parseFloat( planeta.lf_building_deuterio_bonus || 0 );
+                    lifeFormsBuildingsDeuterioBonus += parseFloat( planeta.lf_building_metal_bonus || 0 );
 
-                    totalM = baseM + minaM + geoM + ofiM + plasmaM + amplificadoresM + taladradorM + classeM + clasAliM + lifeFormsMetal;
-                    totalC = baseC + minaC + geoC + ofiC + plasmaC + amplificadoresC + taladradorC + classeC + clasAliC + lifeFormsCristal;
-                    totalD = minaD + geoD + ofiD + plasmaD + (amplificadoresD - gastoFusion) + taladradorD + classeD + clasAliD + lifeFormsDeuterio;
+                    totalM = baseM + minaM + geoM + ofiM + plasmaM + amplificadoresM + taladradorM + classeM + clasAliM + lifeFormsMetal + lifeFormsBuildingsMetalBonus;
+                    totalC = baseC + minaC + geoC + ofiC + plasmaC + amplificadoresC + taladradorC + classeC + clasAliC + lifeFormsCristal + lifeFormsBuildingsCristalBonus;
+                    totalD = minaD + geoD + ofiD + plasmaD + (amplificadoresD - gastoFusion) + taladradorD + classeD + clasAliD + lifeFormsDeuterio + lifeFormsBuildingsDeuterioBonus;
                 }
             }
 
@@ -2898,9 +2918,9 @@
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoM) + '</td><td class="">' + mostrarNumero(geoM*24) + '</td><td class="">' + mostrarNumero(geoM*24*7) + '</td><td class="">' + mostrarNumero(geoM*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_5" style="display:none"><td class="label">{EQUIPO_COMANDO}' + ofiSTR + '</td><td class="">' + mostrarNumero(ofiM) + '</td><td class="">' + mostrarNumero(ofiM*24) + '</td><td class="">' + mostrarNumero(ofiM*24*7) + '</td><td class="">' + mostrarNumero(ofiM*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_6" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresM) + '</td><td class="">' + mostrarNumero(amplificadoresM*24) + '</td><td class="">' + mostrarNumero(amplificadoresM*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorM) + '</td><td class="">' + mostrarNumero(taladradorM*24) + '</td><td class="">' + mostrarNumero(taladradorM*24*7) + '</td><td class="">' + mostrarNumero(taladradorM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeM) + '</td><td class="">' + mostrarNumero(classeM*24) + '</td><td class="">' + mostrarNumero(classeM*24*7) + '</td><td class="">' + mostrarNumero(classeM*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliM) + '</td><td class="">' + mostrarNumero(clasAliM*24) + '</td><td class="">' + mostrarNumero(clasAliM*24*7) + '</td><td class="">' + mostrarNumero(clasAliM*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> '+ getStrSummary("taladrador") +' </td><td class="">' + mostrarNumero(taladradorM) + '</td><td class="">' + mostrarNumero(taladradorM*24) + '</td><td class="">' + mostrarNumero(taladradorM*24*7) + '</td><td class="">' + mostrarNumero(taladradorM*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> '+ getStrSummary("recolector") +' </td><td class="">' + mostrarNumero(classeM) + '</td><td class="">' + mostrarNumero(classeM*24) + '</td><td class="">' + mostrarNumero(classeM*24*7) + '</td><td class="">' + mostrarNumero(classeM*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> '+ getStrSummary("comerciante") +' </td><td class="">' + mostrarNumero(clasAliM) + '</td><td class="">' + mostrarNumero(clasAliM*24) + '</td><td class="">' + mostrarNumero(clasAliM*24*7) + '</td><td class="">' + mostrarNumero(clasAliM*24*7*4) + '</td></tr>';
 
             var detail_id = 10;
             if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 ) {
@@ -2918,9 +2938,9 @@
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_4" style="display:none"><td class="label">{GEOLOGO}' + geoSTR + '</td><td class="">' + mostrarNumero(geoC) + '</td><td class="">' + mostrarNumero(geoC*24) + '</td><td class="">' + mostrarNumero(geoC*24*7) + '</td><td class="">' + mostrarNumero(geoC*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_5" style="display:none"><td class="label">{EQUIPO_COMANDO}' + ofiSTR + '</td><td class="">' + mostrarNumero(ofiC) + '</td><td class="">' + mostrarNumero(ofiC*24) + '</td><td class="">' + mostrarNumero(ofiC*24*7) + '</td><td class="">' + mostrarNumero(ofiC*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_6" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresC) + '</td><td class="">' + mostrarNumero(amplificadoresC*24) + '</td><td class="">' + mostrarNumero(amplificadoresC*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorC) + '</td><td class="">' + mostrarNumero(taladradorC*24) + '</td><td class="">' + mostrarNumero(taladradorC*24*7) + '</td><td class="">' + mostrarNumero(taladradorC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeC) + '</td><td class="">' + mostrarNumero(classeC*24) + '</td><td class="">' + mostrarNumero(classeC*24*7) + '</td><td class="">' + mostrarNumero(classeC*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliC) + '</td><td class="">' + mostrarNumero(clasAliC*24) + '</td><td class="">' + mostrarNumero(clasAliC*24*7) + '</td><td class="">' + mostrarNumero(clasAliC*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> '+ getStrSummary("taladrador") +' </td><td class="">' + mostrarNumero(taladradorC) + '</td><td class="">' + mostrarNumero(taladradorC*24) + '</td><td class="">' + mostrarNumero(taladradorC*24*7) + '</td><td class="">' + mostrarNumero(taladradorC*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> '+ getStrSummary("recolector") +' </td><td class="">' + mostrarNumero(classeC) + '</td><td class="">' + mostrarNumero(classeC*24) + '</td><td class="">' + mostrarNumero(classeC*24*7) + '</td><td class="">' + mostrarNumero(classeC*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> '+ getStrSummary("comerciante") +' </td><td class="">' + mostrarNumero(clasAliC) + '</td><td class="">' + mostrarNumero(clasAliC*24) + '</td><td class="">' + mostrarNumero(clasAliC*24*7) + '</td><td class="">' + mostrarNumero(clasAliC*24*7*4) + '</td></tr>';
 
             detail_id = 10;
             if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 ) {
@@ -2938,9 +2958,9 @@
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_4" style="display:none"><td class="label">{EQUIPO_COMANDO}' + ofiSTR + '</td><td class="">' + mostrarNumero(ofiD) + '</td><td class="">' + mostrarNumero(ofiD*24) + '</td><td class="">' + mostrarNumero(ofiD*24*7) + '</td><td class="">' + mostrarNumero(ofiD*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_5" style="display:none"><td class="label">' + getStrSummary("amplificador") + '</td><td class="">' + mostrarNumero(amplificadoresD) + '</td><td class="">' + mostrarNumero(amplificadoresD*24) + '</td><td class="">' + mostrarNumero(amplificadoresD*24*7) + '</td><td class="">' + mostrarNumero(amplificadoresD*24*7*4) + '</td></tr>';
             tabla += '<tr class="" align="right" id="detalle'+tipo+'_6" style="display:none"><td class="label">' + getStrSummary("fusion") + '</td><td class="">' + mostrarNumero(gastoFusion*-1) + '</td><td class="">' + mostrarNumero(gastoFusion*-24) + '</td><td class="">' + mostrarNumero(gastoFusion*-168) + '</td><td class="">' + mostrarNumero(gastoFusion*-720) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> Taladradores </td><td class="">' + mostrarNumero(taladradorD) + '</td><td class="">' + mostrarNumero(taladradorD*24) + '</td><td class="">' + mostrarNumero(taladradorD*24*7) + '</td><td class="">' + mostrarNumero(taladradorD*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> Clase </td><td class="">' + mostrarNumero(classeD) + '</td><td class="">' + mostrarNumero(classeD*24) + '</td><td class="">' + mostrarNumero(classeD*24*7) + '</td><td class="">' + mostrarNumero(classeD*24*7*4) + '</td></tr>';
-            tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> Comerciante </td><td class="">' + mostrarNumero(clasAliD) + '</td><td class="">' + mostrarNumero(clasAliD*24) + '</td><td class="">' + mostrarNumero(clasAliD*24*7) + '</td><td class="">' + mostrarNumero(clasAliD*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalle'+tipo+'_7" style="display:none"><td class="label"> '+ getStrSummary("taladrador") +' </td><td class="">' + mostrarNumero(taladradorD) + '</td><td class="">' + mostrarNumero(taladradorD*24) + '</td><td class="">' + mostrarNumero(taladradorD*24*7) + '</td><td class="">' + mostrarNumero(taladradorD*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalle'+tipo+'_8" style="display:none"><td class="label"> '+ getStrSummary("recolector") +' </td><td class="">' + mostrarNumero(classeD) + '</td><td class="">' + mostrarNumero(classeD*24) + '</td><td class="">' + mostrarNumero(classeD*24*7) + '</td><td class="">' + mostrarNumero(classeD*24*7*4) + '</td></tr>';
+            tabla += '<tr class="" align="right" id="detalle'+tipo+'_9" style="display:none"><td class="label"> '+ getStrSummary("comerciante") +' </td><td class="">' + mostrarNumero(clasAliD) + '</td><td class="">' + mostrarNumero(clasAliD*24) + '</td><td class="">' + mostrarNumero(clasAliD*24*7) + '</td><td class="">' + mostrarNumero(clasAliD*24*7*4) + '</td></tr>';
 
             detail_id = 10;
             if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 ) {
@@ -2967,9 +2987,9 @@
 
             // --- textarea con el BBCode
             // produccion basica
-            textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
+            /*textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
             textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {COLOR_METAL}" + mostrarNumero((baseM+minaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(((baseD+minaD+taladradorD+classeD)-gastoFusion)*24) + "{/COLOR} {DEUTERIO}{NL}";
-            textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL} , {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR} " + plasmaSTR_deuterio + " {DEUTERIO} {NL}{NL}";
+            textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR} " + plasmaSTR_deuterio + " {DEUTERIO} {NL}{NL}";
             textoBB += "{SIZE_GRA}{B}" + getStrSummary("total_dia") + " {COLOR_METAL}" + mostrarNumero((baseM+minaM+plasmaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+plasmaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+plasmaD+taladradorD+classeD)*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
             textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero(((baseM+minaM+plasmaM+taladradorM+classeM)*24)+((baseC+minaC+plasmaC+taladradorC+classeC)*24)+((baseD+minaD-gastoFusion+plasmaD+taladradorD+classeD)*24)) + "{/COLOR}{NL}";
             textoBB += "{EN_METAL}: {COLOR_TOTAL2}" + mostrarNumero(((baseM+minaM+plasmaM+taladradorM+classeM)*24)+((baseC+minaC+plasmaC+taladradorC+classeC)*24*3/2)+((baseD+minaD+plasmaD-gastoFusion+taladradorD+classeD)*24*3)) + "{/COLOR}{NL}{NL}";
@@ -2977,15 +2997,18 @@
             textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
             textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
             textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
-            bbcode_basico = translate(textoBB);
+            bbcode_basico = translate(textoBB);*/
 
             // produccion completa
-            textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
+            /*textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
             textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {COLOR_METAL}" + mostrarNumero((baseM+minaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+taladradorD+classeD)*24) + "{/COLOR} {DEUTERIO}{NL}";
             textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR}" + plasmaSTR_deuterio + "{DEUTERIO}{NL}";
+            textoBB += getStrSummary("taladrador") + ": {COLOR_METAL}" + mostrarNumero((taladradorM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((taladradorC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((taladradorD)*24) + "{/COLOR} {DEUTERIO}{NL}";
             textoBB += '{EQUIPO_COMANDO}' + ofiSTR + ": {COLOR_METAL}" + mostrarNumero(ofiM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(ofiC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(ofiD*24) + "{/COLOR} {DEUTERIO}{NL}";
             textoBB += '{GEOLOGO}' + geoSTR + ": {COLOR_METAL}" + mostrarNumero(geoM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(geoC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(geoD*24) + "{/COLOR} {DEUTERIO}{NL}";
-            textoBB += getStrSummary("amplificador") + ": {COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            textoBB += getStrSummary("amplificador") + ": {COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}";
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 )
+                textoBB += '{FORMAS_DE_VIDA}: {COLOR_METAL}' + mostrarNumero((lifeFormsMetal+lifeFormsBuildingsMetalBonus)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((lifeFormsCristal+lifeFormsBuildingsCristalBonus)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((lifeFormsDeuterio+lifeFormsBuildingsDeuterioBonus)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
             textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
             textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero(totalM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(totalC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(totalD*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
             textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero((totalM*24)+(totalC*24)+(totalD*24)) + "{/COLOR}{NL}";
@@ -2994,7 +3017,7 @@
             textoBB += "{SIZE_PEQ}{CRISTAL}: " + getStrNiveles(2,sep) + "{/SIZE}{NL}";
             textoBB += "{SIZE_PEQ}{DEUTERIO}: " + getStrNiveles(3,sep) + "{/SIZE}{NL}{NL}";
             textoBB += "{SIZE_PEQ}{URL_SCRIPT}{/SIZE}{NL}";
-            bbcode_completo = translate(textoBB);
+            bbcode_completo = translate(textoBB);*/
 
 
 
@@ -3018,16 +3041,34 @@
             textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {NL}";
             textoBB += "{COLOR_METAL}" + mostrarNumero((baseM+minaM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
             textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR}" + plasmaSTR_deuterio + "{DEUTERIO}{NL}{NL}";
-            textoBB += "Taladradores: {NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero((taladradorM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((taladradorC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((taladradorD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += getStrSummary("recolector") + ":{NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero((classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((classeD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += '{EQUIPO_COMANDO}' + ofiSTR + ":{NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero(ofiM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(ofiC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(ofiD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += '{GEOLOGO}' + geoSTR + ":{NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero(geoM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(geoC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(geoD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
-            textoBB += getStrSummary("amplificador") + ":{NL}";
-            textoBB += "{COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            if( taladradorM>0 && taladradorC>0 && taladradorD>0 ) {
+                textoBB += getStrSummary("taladrador") + ": {NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero((taladradorM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((taladradorC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((taladradorD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            }
+            if( classeM>0 && classeC>0 && classeD>0 ) {
+                textoBB += getStrSummary("recolector") + ":{NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero((classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((classeD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            }
+            if( clasAliM>0 && clasAliC>0 && clasAliD>0 ) {
+                textoBB += getStrSummary("comerciante") + ":{NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero((clasAliM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((clasAliC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((clasAliD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            }
+            if( ofiM>0 && ofiC>0 && ofiD>0 ) {
+                textoBB += '{EQUIPO_COMANDO}' + ofiSTR + ":{NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero(ofiM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(ofiC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(ofiD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            }
+            if( geoM>0 && geoC>0 && geoD>0 ) {
+                textoBB += '{GEOLOGO}' + geoSTR + ":{NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero(geoM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(geoC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(geoD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            }
+            if( amplificadoresM>0 && amplificadoresC>0 && amplificadoresD>0 ) {
+                textoBB += getStrSummary("amplificador") + ":{NL}";
+                textoBB += "{COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            }
+            if( $("#lifeform").length>0 && $("#lifeform .lifeform-item-icon").length>0 ) {
+                textoBB += '{FORMAS_DE_VIDA}: {NL}';
+                textoBB += '{COLOR_METAL}' + mostrarNumero((lifeFormsMetal+lifeFormsBuildingsMetalBonus)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((lifeFormsCristal+lifeFormsBuildingsCristalBonus)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((lifeFormsDeuterio+lifeFormsBuildingsDeuterioBonus)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            }
             textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
             textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero(totalM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(totalC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(totalD*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
             textoBB += "{TOTAL}: {COLOR_TOTAL1}" + mostrarNumero((totalM*24)+(totalC*24)+(totalD*24)) + "{/COLOR}{NL}";
@@ -3042,13 +3083,13 @@
 
 
             produccionBB = '<p align="center"><br><textarea id="txtBB" name="txtBB" style="background-color:##0000FF;width:600px;height:100px;border: 2px solid #990000;" rows="5" cols="20" onclick="this.focus();this.select()" readonly="readonly">';
-            produccionBB += codificar(bbcode_basico, "phpbb")
+            produccionBB += codificar(bbcode_basico2, "phpbb")
             produccionBB += '</textarea><br>';
-            produccionBB += '<label for="op_p_bas"> <input id="op_p_bas" type="radio" name="tipo_bbc" value="basica" checked="checked">{PRODUCCION_BASICA}</input></label><br>';
-            produccionBB += '<label for="op_p_comp"> <input id="op_p_comp" type="radio" name="tipo_bbc" value="completa">{PRODUCCION_COMPLETA}</input></label><br>';
-            produccionBB += '<label for="op_p_bas2"> <input id="op_p_bas2" type="radio" name="tipo_bbc" value="basica2">{PRODUCCION_BASICA}</input></label><br>';
+            /*produccionBB += '<label for="op_p_bas" style="display:none;"> <input id="op_p_bas" type="radio" name="tipo_bbc" value="basica" checked="checked">{PRODUCCION_BASICA}</input></label><br style="display:none;">';
+            produccionBB += '<label for="op_p_comp" style="display:none;"> <input id="op_p_comp" type="radio" name="tipo_bbc" value="completa">{PRODUCCION_COMPLETA}</input></label><br style="display:none;">';*/
+            produccionBB += '<label for="op_p_bas2"> <input id="op_p_bas2" type="radio" name="tipo_bbc" value="basica2" checked="checked">{PRODUCCION_BASICA}</input></label><br>';
             produccionBB += '<label for="op_p_comp2"> <input id="op_p_comp2" type="radio" name="tipo_bbc" value="completa2">{PRODUCCION_COMPLETA}</input></label><br></p>';
-            produccionBB += '<br><br><div id="preview" style="margin:25px">' + codificar(bbcode_basico, "html") + '</div>';
+            produccionBB += '<br><br><div id="preview" style="margin:25px">' + codificar(bbcode_basico2, "html") + '</div>';
 
 
             var metalD = totalM * 24;
@@ -3101,7 +3142,7 @@
 
 
             var txtFinal = '<p align="center"><br><br><br><font size="1"><br><br>';
-            txtFinal += '<a href="https://openuserjs.org/scripts/jgarrone/OGame_Recursos_Ampliados" target="_blank">OGame Recursos Ampliados by The Undertaker</a><br>';
+            txtFinal += '<a href="https://github.com/JBWKZ2099/ogame-recursos-ampliados" target="_blank">OGame Recursos Ampliados by The Undertaker</a><br>';
             txtFinal += '[version: ' + SCRIPT_VERSION +  ']<br><br>{TRANSLATE_BY}<BR></font>';
             txtFinal += '<a class="ogres-clear-data" href="#ogres-clear-data" target="">Reset-Data</a><br></p>';
 
@@ -3197,11 +3238,11 @@
 
 
             // opciones para el bbcode con la produccion basica o completa
-            obj = document.getElementById("op_p_bas");
+            /*obj = document.getElementById("op_p_bas");
             addEvent(obj, "click", function(){setTxtBBCode(0)});
 
             obj = document.getElementById("op_p_comp");
-            addEvent(obj, "click", function(){setTxtBBCode(1)});
+            addEvent(obj, "click", function(){setTxtBBCode(1)});*/
 
             obj = document.getElementById("op_p_bas2");
             addEvent(obj, "click", function(){setTxtBBCode(2)});
