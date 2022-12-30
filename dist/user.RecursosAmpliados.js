@@ -1916,7 +1916,7 @@
         }
 
         if(str.toUpperCase() == "TOTAL_DIA") {
-            ret = $(lista).find("tbody > tr.summary > td:nth-child(2)").html();
+            ret = $(lista).find("tbody > tr.summary").next().find("td:nth-child(1)").html();
             ret = ret.replace(/\./g, "").replace(/\,/g, "").trim();
             ret = ret.replace("<em>","").replace("</em>","");
         }
@@ -2983,7 +2983,8 @@
             textoBB = '{SIZE_GRA}{U}{B}{COLOR_NARANJA}{PRODUCCION_DIARIA_DE} ' + getNombreJugador() + '{/COLOR}{/B}{/U} {/SIZE}{SIZE_PEQ}(' + getFecha() + '){/SIZE}{NL}{NL}';
             textoBB += getStrSummary("basico") + " (" + numPlanets + " {PLANETAS}): {COLOR_METAL}" + mostrarNumero((baseM+minaM+taladradorM+classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((baseC+minaC+taladradorC+classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((baseD+minaD-gastoFusion+taladradorD+classeD)*24) + "{/COLOR} {DEUTERIO}{NL}";
             textoBB += getStrSummary("plasma") +  ": {COLOR_METAL}" + mostrarNumero(plasmaM*24) + "{/COLOR} " + plasmaSTR_metal + " {METAL}, {COLOR_CRISTAL}" + mostrarNumero(plasmaC*24) + "{/COLOR} " + plasmaSTR_cristal + " {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(plasmaD*24) + "{/COLOR}" + plasmaSTR_deuterio + "{DEUTERIO}{NL}";
-            textoBB += '{GEOLOGO}' + geoSTR + ": {COLOR_METAL}" + mostrarNumero((geoM+ofiM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((geoC+ofiC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((geoD+ofiD)*24) + "{/COLOR} {DEUTERIO}{NL}";
+            textoBB += '{EQUIPO_COMANDO}' + ofiSTR + ": {COLOR_METAL}" + mostrarNumero(ofiM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(ofiC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(ofiD*24) + "{/COLOR} {DEUTERIO}{NL}";
+            textoBB += '{GEOLOGO}' + geoSTR + ": {COLOR_METAL}" + mostrarNumero(geoM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(geoC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(geoD*24) + "{/COLOR} {DEUTERIO}{NL}";
             textoBB += getStrSummary("amplificador") + ": {COLOR_METAL}" + mostrarNumero(amplificadoresM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(amplificadoresC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(amplificadoresD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
             textoBB += "{SIZE_GRA}{B}{COLOR_NARANJA}" + getStrSummary("total_dia") + "{/COLOR}{/B}{/SIZE}{NL}";
             textoBB += "{SIZE_GRA}{B}{COLOR_METAL}" + mostrarNumero(totalM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(totalC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(totalD*24) + "{/COLOR} {DEUTERIO}{/B}{/SIZE}{NL}{NL}";
@@ -3021,6 +3022,8 @@
             textoBB += "{COLOR_METAL}" + mostrarNumero((taladradorM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((taladradorC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((taladradorD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
             textoBB += getStrSummary("recolector") + ":{NL}";
             textoBB += "{COLOR_METAL}" + mostrarNumero((classeM)*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero((classeC)*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero((classeD)*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
+            textoBB += '{EQUIPO_COMANDO}' + ofiSTR + ":{NL}";
+            textoBB += "{COLOR_METAL}" + mostrarNumero(ofiM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(ofiC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(ofiD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
             textoBB += '{GEOLOGO}' + geoSTR + ":{NL}";
             textoBB += "{COLOR_METAL}" + mostrarNumero(geoM*24) + "{/COLOR} {METAL}, {COLOR_CRISTAL}" + mostrarNumero(geoC*24) + "{/COLOR} {CRISTAL}, {COLOR_DEUTERIO}" + mostrarNumero(geoD*24) + "{/COLOR} {DEUTERIO}{NL}{NL}";
             textoBB += getStrSummary("amplificador") + ":{NL}";
@@ -3041,10 +3044,10 @@
             produccionBB = '<p align="center"><br><textarea id="txtBB" name="txtBB" style="background-color:##0000FF;width:600px;height:100px;border: 2px solid #990000;" rows="5" cols="20" onclick="this.focus();this.select()" readonly="readonly">';
             produccionBB += codificar(bbcode_basico, "phpbb")
             produccionBB += '</textarea><br>';
-            produccionBB += '<input id="op_p_bas" type="radio" name="tipo_bbc" value="basica" checked="checked">{PRODUCCION_BASICA}</input><br>';
-            produccionBB += '<input id="op_p_comp" type="radio" name="tipo_bbc" value="completa">{PRODUCCION_COMPLETA}</input><br>';
-            produccionBB += '<input id="op_p_bas2" type="radio" name="tipo_bbc" value="basica2">{PRODUCCION_BASICA}</input><br>';
-            produccionBB += '<input id="op_p_comp2" type="radio" name="tipo_bbc" value="completa2">{PRODUCCION_COMPLETA}</input><br></p>';
+            produccionBB += '<label for="op_p_bas"> <input id="op_p_bas" type="radio" name="tipo_bbc" value="basica" checked="checked">{PRODUCCION_BASICA}</input></label><br>';
+            produccionBB += '<label for="op_p_comp"> <input id="op_p_comp" type="radio" name="tipo_bbc" value="completa">{PRODUCCION_COMPLETA}</input></label><br>';
+            produccionBB += '<label for="op_p_bas2"> <input id="op_p_bas2" type="radio" name="tipo_bbc" value="basica2">{PRODUCCION_BASICA}</input></label><br>';
+            produccionBB += '<label for="op_p_comp2"> <input id="op_p_comp2" type="radio" name="tipo_bbc" value="completa2">{PRODUCCION_COMPLETA}</input></label><br></p>';
             produccionBB += '<br><br><div id="preview" style="margin:25px">' + codificar(bbcode_basico, "html") + '</div>';
 
 
