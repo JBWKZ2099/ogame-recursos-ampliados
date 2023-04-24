@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 3.0.3
+// @version 3.0.4
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://github.com/JBWKZ2099/ogame-recursos-ampliados
@@ -18,9 +18,9 @@
 // Aporte de BigBoss (JBWKZ2099) para actualizar a la versión 9.1 (Se contemplan formas de vida)
 // ==/UserScript==
 
-(function () {
+(async function () {
 
-    var SCRIPT_VERSION = "3.0.1";
+    var SCRIPT_VERSION = "3.0.4";
 
     var unsafe = (typeof unsafeWindow) != "undefined" ? unsafeWindow : window;
 
@@ -125,6 +125,7 @@
         ,produccion_def: "Producción estimada de defensas"
         ,producc_diaria: "Producción diaria de"
         ,translate_by: "The Undertaker"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Almacenes"
         ,flota: "Flota"
@@ -202,6 +203,7 @@
         ,officers: "Officers"
         ,lifeforms: "Life Forms"
         ,translate_by: "The Undertaker"
+        ,btn_print_text: "Print Imperial Production"
 
 
         ,p_carga: "Small Cargo"
@@ -258,6 +260,7 @@
         ,produccion_def: "Production de Défense"
         ,producc_diaria: "Production quotidienne"
         ,translate_by: "Traduit par Carlton2001"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Hangars"
         ,flota: "Flotte"
@@ -323,6 +326,7 @@
         ,produccion_def: "Могат да се произведат следните защити"
         ,producc_diaria: "Дневно производство"
         ,translate_by: "Български превод: Веселин Бончев"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Storage"
         ,flota: "Fleet"
@@ -387,6 +391,7 @@
         ,produccion_def:  "Предположительное производство обороны"
         ,producc_diaria:  "Дневная производительность"
         ,translate_by: "Перевод: Hao и ImperatorT"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Storage"
         ,flota: "Fleet"
@@ -451,6 +456,7 @@
         ,produccion_def: "預估生產防禦"
         ,producc_diaria: "日產"
         ,translate_by: ""
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Storage"
         ,flota: "Fleet"
@@ -512,6 +518,7 @@
         ,produccion_def: "Εκτιμώμενη παραγωγή άμυνας"
         ,producc_diaria: "Ημερήσια παραγωγή"
         ,translate_by: "Μετάφραση στα Ελληνικά: Gagarin"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Αποθήκες"
         ,flota: "Στόλος"
@@ -579,6 +586,7 @@
         ,produccion_def: "Estimeteret produktion af forsvar"
         ,producc_diaria: "Daglig Produktion"
         ,translate_by: "Bangsholt"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Storage"
         ,flota: "Fleet"
@@ -643,6 +651,7 @@
         ,produccion_def: "Produzione stimata difese"
         ,producc_diaria: "Produzione giornaliera"
         ,translate_by: "Traduzione italiana a cura di: "
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Storage"
         ,flota: "Fleet"
@@ -705,6 +714,7 @@
         ,produccion_def: "Produção de Defesa"
         ,producc_diaria: "Produção Diária"
         ,translate_by: "Tradução Portuguesa por: WDFOX"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Storage"
         ,flota: "Fleet"
@@ -769,6 +779,7 @@
         ,produccion_def: "Szacowana budowa obrony"
         ,producc_diaria: "Dzienna produkcja"
         ,translate_by: "Polskie tłumaczenie: pomylony"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Storage"
         ,flota: "Fleet"
@@ -834,6 +845,7 @@
         ,produccion_def: "Mögliche Produktion Verteidigungsanlagen"
         ,producc_diaria: "Tägliche Produktion"
         ,translate_by: "Deutsche Übersetzung von Killercorny"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Storage"
         ,flota: "Fleet"
@@ -895,6 +907,7 @@
         ,produccion_def: "Geschatte Verdediging productie"
         ,producc_diaria: "Dagelijkse Productie"
         ,translate_by: "Dutch Translation by: Sanctuary"
+        ,btn_print_text: "Print Imperial Production"
         ,bbcode: "BBCode"
         ,almacenes: "Opslag"
         ,flota: "Vloot"
@@ -1353,6 +1366,7 @@
         text = text.replace(/{TOTAL}/gi, LANG.total)
         text = text.replace(/{PRODUCCION_DIARIA_DE}/gi, LANG.producc_diaria)
         text = text.replace(/{TRANSLATE_BY}/gi, LANG.translate_by)
+        text = text.replace(/{BTN_PRINT_TEXT}/gi, LANG.btn_print_text)
         text = text.replace(/{EN_METAL}/gi, LANG.en_metal)
 
         text = text.replace(/{BBCODE}/gi, LANG.bbcode)
@@ -3141,7 +3155,8 @@
             txtTablaDef += '</table>';
 
 
-            var txtFinal = '<p align="center"><br><br><br><font size="1"><br><br>';
+            var txtFinal = '<p style="text-align:center;"><span style="margin-bottom:30px;display:block;">&nbsp;</span>';
+            txtFinal += '<button class="btn_blue" type="button" id="print-prod-imp" style="margin-bottom:20px;">{BTN_PRINT_TEXT}</button> <br>';
             txtFinal += '<a href="https://github.com/JBWKZ2099/ogame-recursos-ampliados" target="_blank">OGame Recursos Ampliados by The Undertaker</a><br>';
             txtFinal += '[version: ' + SCRIPT_VERSION +  ']<br><br>{TRANSLATE_BY}<BR></font>';
             txtFinal += '<a class="ogres-clear-data" href="#ogres-clear-data" target="">Reset-Data</a><br></p>';
@@ -3328,4 +3343,36 @@
     $(document).find("#prod-imp #sec_3").addClass("table-prod-imp");
     $(document).find("#prod-imp #sec_4").addClass("table-prod-imp");
     $(document).find("#prod-imp #sec_5").addClass("table-prod-imp");
-}) ()
+
+    function addScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+
+        s.setAttribute('src', src);
+        s.addEventListener('load', resolve);
+        s.addEventListener('error', reject);
+
+        document.body.appendChild(s);
+      });
+    }
+
+    await addScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+    await addScript("https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js")
+
+    prod_imp = $(document).find('#prod-imp');
+
+    $(document).on("click", "#print-prod-imp", captureImage);
+
+}) ();
+
+async function captureImage() {
+  // Capturar el contenido del div
+  const div = document.getElementById("prod-imp");
+  const canvas = await html2canvas(div);
+
+  // Crear un enlace de descarga para la imagen
+  const link = document.createElement("a");
+  link.download = "imperial_production.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
