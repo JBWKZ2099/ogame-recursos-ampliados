@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 3.0.4
+// @version 3.0.5
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://github.com/JBWKZ2099/ogame-recursos-ampliados
@@ -20,7 +20,7 @@
 
 (async function () {
 
-    var SCRIPT_VERSION = "3.0.4";
+    var SCRIPT_VERSION = "3.0.5";
 
     var unsafe = (typeof unsafeWindow) != "undefined" ? unsafeWindow : window;
 
@@ -1521,7 +1521,7 @@
         var nivel_plasma = researches[122];
 
         /*Deprecated*/
-        /*var lista = getElementsByClass("list")[0];
+        /*var lista = document.querySelector(".list");
         var nivel_plasma = getContenido(lista, 10,0).innerHTML;
         nivel_plasma = parseInt(nivel_plasma.replace(/\D/g,''));*/
 
@@ -1858,7 +1858,7 @@
     }
 
     function getStrSummary(str) {
-        var lista = getElementsByClass("list")[0];
+        var lista = document.querySelector(".list");
         var ret = "";
 
         if(str.toUpperCase() == "BASICO") {
@@ -2041,7 +2041,7 @@
             var minaM = minaC = minaD = 0;
             var plasmaM = plasmaC = 0;
 
-            var lista = getElementsByClass("list")[0];
+            var lista = document.querySelector(".list");
 
             var bonus_taladrador = $("#characterclass div.characterclass").hasClass("miner") && geologoActivo() ? 0.03 : 0.02, /* 2% cada recurso, si está geólogo y la clase del jugador es recolector es 3% */
                 taladrador_qty = 0,
@@ -2708,7 +2708,7 @@
 
         var nivel_plasma = getNivelPlasma();
 
-        var planets = getElementsByClass("smallplanet");
+        var planets = document.querySelectorAll(".smallplanet");
         var numPlanets = planets.length;
 
         if ( numPlanets > 0 ) {
@@ -2717,10 +2717,11 @@
             // --- lista de planetas ---
             var listaPlanetas = "";
             for (var i=0; i<planets.length; i++ ) {
-                var cord = getElementsByClass("planet-koords", planets[i]);
-                var nombre = getElementsByClass("planet-name", planets[i]);
-                listaPlanetas += cord[0].innerHTML + ";";
-                options.set(cord[0].innerHTML + "_nombre", nombre[0].innerHTML);
+                var cord = planets[i].querySelector(".planet-koords");
+                var nombre = planets[i].querySelector(".planet-name");
+
+                listaPlanetas += cord.innerHTML + ";";
+                options.set(cord.innerHTML + "_nombre", nombre.innerHTML);
             }
 
             options.set("lista", listaPlanetas);
@@ -2841,7 +2842,7 @@
             // --- crea la tabla ---
 
 
-            var main = getElementsByClass("mainRS")[0];
+            var main = document.querySelector(".mainRS");
 
 
             var divPorPlanetas = document.createElement('div');
