@@ -2148,7 +2148,7 @@
             /**
              * //Se comenta para mejorar precisión
              *
-             * parcial = getContenido(lista, 10,2).innerHTML;
+             * parcial = getContenido(lista, 11,2).innerHTML;
              * parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
              * parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
              * planeta.metal_plasma = parseInt( parcial );
@@ -2156,23 +2156,12 @@
 
             // amplificador
             parcial = $(lista).find("tbody > tr.1000 > td:nth-child(3)").html();
-            parcial = parcial.split("title=\"")[1].split("\"")[0];
-            parcial = parcial.trim();
-
-            var parcial2 = parcial.split(".");
-
-            if( parcial2.length<=3 ) {
-                var parcial3 = "";
-                $.each(parcial2, function(i, el) {
-
-                    if( i<(parcial2.length-1) )
-                        parcial3 += el;
-                    else
-                        parcial3 += `.${el}`;
-                });
-
-                parcial = parseFloat(parcial3) || 0;
-            }
+            /*parcial = parcial.split("title=\"")[1].split("\"")[0];
+            parcial = parcial.trim();*/
+            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+            amplificador_percent = Math.round((parcial/planeta.metal_produccion_mina)*100)/100;
+            parcial = planeta.metal_produccion_mina * amplificador_percent;
 
             planeta.metal_produccion_amplificador = parseFloat( parcial );
 
@@ -2251,23 +2240,10 @@
 
             // amplificador
             parcial = $(lista).find("tbody > tr.1000 > td:nth-child(4)").html();
-            parcial = parcial.split("title=\"")[1].split("\"")[0];
-            parcial = parcial.trim();
-
-            var parcial2 = parcial.split(".");
-
-            if( parcial2.length<=3 ) {
-                var parcial3 = "";
-                $.each(parcial2, function(i, el) {
-
-                    if( i<(parcial2.length-1) )
-                        parcial3 += el;
-                    else
-                        parcial3 += `.${el}`;
-                });
-
-                parcial = parseFloat(parcial3) || 0;
-            }
+            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+            amplificador_percent = Math.round((parcial/planeta.cristal_produccion_mina)*100)/100;
+            parcial = planeta.cristal_produccion_mina * amplificador_percent;
 
             planeta.cristal_produccion_amplificador = parseFloat( parcial );
 
@@ -2365,23 +2341,10 @@
 
             // amplificador
             parcial = $(lista).find("tbody > tr.1000 > td:nth-child(5)").html();
-            parcial = parcial.split("title=\"")[1].split("\"")[0];
-            parcial = parcial.trim();
-
-            var parcial2 = parcial.split(".");
-
-            if( parcial2.length<=3 ) {
-                var parcial3 = "";
-                $.each(parcial2, function(i, el) {
-
-                    if( i<(parcial2.length-1) )
-                        parcial3 += el;
-                    else
-                        parcial3 += `.${el}`;
-                });
-
-                parcial = parseFloat(parcial3) || 0;
-            }
+            parcial = parcial.substring(parcial.indexOf('">')+2, parcial.indexOf("</span>"));
+            parcial = parcial.replace(/\./g, "").replace(/\,/g, "").trim();
+            amplificador_percent = Math.round((parcial/planeta.cristal_produccion_mina)*100)/100;
+            parcial = planeta.cristal_produccion_mina * amplificador_percent;
 
             planeta.deuterio_produccion_amplificador = parseFloat( parcial );
 
