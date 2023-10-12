@@ -2682,9 +2682,13 @@
             for (var i=0; i<planets.length; i++ ) {
                 var cord = planets[i].querySelector(".planet-koords");
                 var nombre = planets[i].querySelector(".planet-name");
+                var cordInnerHTML = cord.innerHTML;
 
-                listaPlanetas += cord.innerHTML + ";";
-                options.set(cord.innerHTML + "_nombre", nombre.innerHTML);
+                if( !cordInnerHTML.includes("[") )
+                    cordInnerHTML = `[${cord.innerHTML}]`;
+
+                listaPlanetas += cordInnerHTML + ";";
+                options.set(cordInnerHTML + "_nombre", nombre.innerHTML);
             }
 
             options.set("lista", listaPlanetas);
