@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 3.0.5
+// @version 3.0.6
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://github.com/JBWKZ2099/ogame-recursos-ampliados
@@ -2667,6 +2667,7 @@
     if (location.href.indexOf('-nl.ogame.gameforge.com') != -1) { LANG = LANG_NL; }
 
     if( location.href.indexOf('/game/index.php?page=ingame&component=resourcesettings')!=-1 || location.href.indexOf('/game/index.php?page=ingame&component=resourceSettings')!=-1 ) {
+        /*clearAllData(false);*/
         getDatosSummary();
 
         var nivel_plasma = getNivelPlasma();
@@ -2675,8 +2676,6 @@
         var numPlanets = planets.length;
 
         if ( numPlanets > 0 ) {
-
-
             // --- lista de planetas ---
             var listaPlanetas = "";
             for (var i=0; i<planets.length; i++ ) {
@@ -2795,9 +2794,9 @@
                     lifeFormsMetal += parseFloat( planeta.life_form_metal_bonus || 0 );
                     lifeFormsCristal += parseFloat( planeta.life_form_cristal_bonus || 0 );
                     lifeFormsDeuterio += parseFloat( planeta.life_form_deuterio_bonus || 0 );
-                    lifeFormsBuildingsMetalBonus += parseFloat( planeta.lf_building_cristal_bonus || 0 );
-                    lifeFormsBuildingsCristalBonus += parseFloat( planeta.lf_building_deuterio_bonus || 0 );
-                    lifeFormsBuildingsDeuterioBonus += parseFloat( planeta.lf_building_metal_bonus || 0 );
+                    lifeFormsBuildingsMetalBonus += parseFloat( planeta.lf_building_metal_bonus || 0 );
+                    lifeFormsBuildingsCristalBonus += parseFloat( planeta.lf_building_cristal_bonus || 0 );
+                    lifeFormsBuildingsDeuterioBonus += parseFloat( planeta.lf_building_deuterio_bonus || 0 );
 
                     totalM = baseM + minaM + geoM + ofiM + plasmaM + amplificadoresM + taladradorM + classeM + clasAliM + lifeFormsMetal + lifeFormsBuildingsMetalBonus;
                     totalC = baseC + minaC + geoC + ofiC + plasmaC + amplificadoresC + taladradorC + classeC + clasAliC + lifeFormsCristal + lifeFormsBuildingsCristalBonus;
