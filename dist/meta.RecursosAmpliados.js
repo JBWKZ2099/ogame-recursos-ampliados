@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name OGame: Recursos Ampliados
 // @description OGame: Detalla la produccion de recursos en Opciones de Recursos
-// @version 3.0.5
+// @version 3.0.10
 // @creator jgarrone
 // @copyright 2016, jgarrone, Actualización por BigBoss (JBWKZ2099)
 // @homepageURL https://github.com/JBWKZ2099/ogame-recursos-ampliados
